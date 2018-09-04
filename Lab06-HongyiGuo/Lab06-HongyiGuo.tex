@@ -1,0 +1,181 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage{ctex}
+\usepackage{amsmath,amscd,amsbsy,amssymb,latexsym,url,bm,amsthm}
+\usepackage{epsfig,graphicx,subfigure}
+\usepackage{enumitem,balance}
+\usepackage{wrapfig}
+\usepackage{mathrsfs,euscript}
+\usepackage[usenames]{xcolor}
+\usepackage{hyperref}
+\usepackage[vlined,ruled,linesnumbered]{algorithm2e}
+\usepackage{array}
+\hypersetup{colorlinks=true,linkcolor=black}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{exercise}{Exercise}
+\newtheorem*{solution}{Solution}
+\newtheorem{definition}{Definition}
+\theoremstyle{definition}
+
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+
+\newcommand{\postscript}[2]
+ {\setlength{\epsfxsize}{#2\hsize}
+  \centerline{\epsfbox{#1}}}
+
+\renewcommand{\baselinestretch}{1.0}
+
+\setlength{\oddsidemargin}{-0.365in}
+\setlength{\evensidemargin}{-0.365in}
+\setlength{\topmargin}{-0.3in}
+\setlength{\headheight}{0in}
+\setlength{\headsep}{0in}
+\setlength{\textheight}{10.1in}
+\setlength{\textwidth}{7in}
+\makeatletter \renewenvironment{proof}[1][Proof] {\par\pushQED{\qed}\normalfont\topsep6\p@\@plus6\p@\relax\trivlist\item[\hskip\labelsep\bfseries#1\@addpunct{.}]\ignorespaces}{\popQED\endtrivlist\@endpefalse} \makeatother
+\makeatletter
+\renewenvironment{solution}[1][Solution] {\par\pushQED{\qed}\normalfont\topsep6\p@\@plus6\p@\relax\trivlist\item[\hskip\labelsep\bfseries#1\@addpunct{.}]\ignorespaces}{\popQED\endtrivlist\@endpefalse} \makeatother
+
+\begin{document}
+\noindent
+
+%========================================================================
+\noindent\framebox[\linewidth]{\shortstack[c]{
+\Large{\textbf{Lab06-CPLEX}}\vspace{1mm}\\
+CS214-Algorithm and Complexity, Xiaofeng Gao, Spring 2018.}}
+\begin{center}
+
+\footnotesize{\color{blue}$*$ Name:Hongyi Guo  \quad Student ID:516030910306 \quad Email: guohongyi@sjtu.edu.cn}
+\end{center}
+
+
+An engineering factory makes seven products (PROD 1 to PROD 7) on the following machines: four grinders, two vertical drills, three horizontal drills, one borer and one planer. Each product yields a certain contribution to profit (in \pounds/unit). These quantities (in \pounds/unit) together with the unit production times (hours) required on each process are given below. A dash indicates that a product does not require a process.
+
+\begin{table}[htbp]
+  \scriptsize
+  \centering
+  \renewcommand\arraystretch{1.1}
+  \begin{tabular}{m{0.18\textwidth} m{0.07\textwidth}<{\centering} m{0.07\textwidth}<{\centering} m{0.07\textwidth}<{\centering} m{0.07\textwidth}<{\centering} m{0.07\textwidth}<{\centering} m{0.07\textwidth}<{\centering} m{0.07\textwidth}<{\centering}}
+  \hline
+   & \textbf{PROD 1} & \textbf{PROD 2} & \textbf{PROD 3} & \textbf{PROD 4} & \textbf{PROD 5} & \textbf{PROD 6} &  \textbf{PROD 7} \\\hline
+  Contribution to profit & 10 & 6 & 8 & 4 & 11 & 9 & 3 \\
+  Grinding & 0.5 & 0.7 & - & - & 0.3 & 0.2 & 0.5 \\
+  Vertical drilling & 0.1 & 0.2 & - & 0.3 & - & 0.6 & - \\
+  Horizontal drilling & 0.2 & - & 0.8 & - & - & - & 0.6 \\
+  Boring & 0.05 & 0.03 & - & 0.07 & 0.1 & - & 0.08 \\
+  Planing & - & - & 0.01 & - & 0.05 & - & 0.05 \\
+  \hline
+  \end{tabular}
+\end{table}
+
+There are marketing limitations on each product in each month, given in the following table:
+
+\begin{table}[htbp]
+  \scriptsize
+  \centering
+  \renewcommand\arraystretch{1.1}
+  \begin{tabular}{m{0.1\textwidth} m{0.07\textwidth}<{\centering} m{0.07\textwidth}<{\centering} m{0.07\textwidth}<{\centering} m{0.07\textwidth}<{\centering} m{0.07\textwidth}<{\centering} m{0.07\textwidth}<{\centering} m{0.07\textwidth}<{\centering}}
+  \hline
+   & \textbf{PROD 1} & \textbf{PROD 2} & \textbf{PROD 3} & \textbf{PROD 4} & \textbf{PROD 5} & \textbf{PROD 6} &  \textbf{PROD 7} \\\hline
+  January & 500 & 1000 & 300 & 300 & 800 & 200 & 100 \\
+  February & 600 & 500 & 200 & 0 & 400 & 300 & 150 \\
+  March & 300 & 600 & 0 & 0 & 500 & 400 & 100 \\
+  April & 200 & 300 & 400 & 500 & 200 & 0 & 100 \\
+  May & 0 & 100 & 500 & 100 & 1000 & 300 & 0 \\
+  June & 500 & 500 & 100 & 300 & 1100 & 500 & 60 \\
+  \hline
+  \end{tabular}
+\end{table}
+
+It is possible to store up to 100 of each product at a time at a cost of \pounds0.5 per unit per month (charged at the end of each month according to the amount held at that time). There are no stocks at present, but it is desired to have a stock of exactly 50 of each type of product at the end of June. The factory works six days a week with two shifts of 8h each day. It may be assumed that each month consists of only 24 working days. Each machine must be down for maintenance in one month of the six. No sequencing problems need to be considered.
+
+When and what should the factory make in order to maximize the total net profit?
+
+\begin{enumerate}
+\item
+Use \emph{CPLEX Optimization Studio} to solve this problem. Describe your model in \emph{Optimization Programming Language} (OPL). Remember to use a separate data file (.dat) rather than embedding the data into the model file (.mod).
+
+\item
+Solve your model and give the following results.
+\begin{enumerate}
+\item
+For each machine:
+\begin{enumerate}
+\item
+the month for maintenance.\par
+- All down for maintenance in April.
+\end{enumerate}
+\item
+For each product:
+\begin{enumerate}
+\item
+The amount to make in each month.
+
+	\scriptsize
+	\renewcommand\arraystretch{1.1}
+	\begin{tabular}{m{0.1\textwidth} m{0.07\textwidth}<{\centering} m{0.07\textwidth}<{\centering} m{0.07\textwidth}<{\centering} m{0.07\textwidth}<{\centering} m{0.07\textwidth}<{\centering} m{0.07\textwidth}<{\centering} m{0.07\textwidth}<{\centering}}
+		\hline
+		& \textbf{PROD 1} & \textbf{PROD 2} & \textbf{PROD 3} & \textbf{PROD 4} & \textbf{PROD 5} & \textbf{PROD 6} &  \textbf{PROD 7} \\\hline
+		January & 500 & 1000 & 300 & 300 & 800 & 200 & 100 \\
+		February & 600 & 500 & 200 & 0 & 400 & 300 & 150 \\
+		March & 400 & 700 & 100 & 100 & 600 & 400 & 200 \\
+		April & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+		May & 0 & 100 & 500 & 100 & 1000 & 300 & 0 \\
+		June & 550 & 550 & 150 & 350 & 1150 & 550 & 110 \\
+		\hline
+	\end{tabular}
+
+\item
+The amount to sell in each month.
+
+	\scriptsize
+	\renewcommand\arraystretch{1.1}
+	\begin{tabular}{m{0.1\textwidth} m{0.07\textwidth}<{\centering} m{0.07\textwidth}<{\centering} m{0.07\textwidth}<{\centering} m{0.07\textwidth}<{\centering} m{0.07\textwidth}<{\centering} m{0.07\textwidth}<{\centering} m{0.07\textwidth}<{\centering}}
+		\hline
+		& \textbf{PROD 1} & \textbf{PROD 2} & \textbf{PROD 3} & \textbf{PROD 4} & \textbf{PROD 5} & \textbf{PROD 6} &  \textbf{PROD 7} \\\hline
+		January & 500 & 1000 & 300 & 300 & 800 & 200 & 100 \\
+		February & 600 & 500 & 200 & 0 & 400 & 300 & 150 \\
+		March & 300 & 600 & 0 & 0 & 500 & 400 & 100 \\
+		April & 100 & 100 & 100 & 100 & 100 & 0 & 100 \\
+		May & 0 & 100 & 500 & 100 & 1000 & 300 & 0 \\
+		June & 500 & 500 & 100 & 300 & 1100 & 500 & 60 \\
+		\hline
+	\end{tabular}
+
+\item
+The amount to hold at the end of each month.
+
+	\scriptsize
+	\renewcommand\arraystretch{1.1}
+	\begin{tabular}{m{0.1\textwidth} m{0.07\textwidth}<{\centering} m{0.07\textwidth}<{\centering} m{0.07\textwidth}<{\centering} m{0.07\textwidth}<{\centering} m{0.07\textwidth}<{\centering} m{0.07\textwidth}<{\centering} m{0.07\textwidth}<{\centering}}
+		\hline
+		& \textbf{PROD 1} & \textbf{PROD 2} & \textbf{PROD 3} & \textbf{PROD 4} & \textbf{PROD 5} & \textbf{PROD 6} &  \textbf{PROD 7} \\\hline
+		January & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+		February & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+		March & 100 & 100 & 100 & 100 & 100 & 100 & 100 \\
+		April & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+		May & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+		June & 50 & 50 & 50 & 50 &50 & 50 & 50 \\
+		\hline
+	\end{tabular}
+\end{enumerate}
+\item
+The total selling profit.\par
+- 109330
+\item
+The total holding cost.\par
+- 475
+\item
+The total net profit (selling profit minus holding cost).\par
+- 108855
+\end{enumerate}
+\end{enumerate}
+
+\textbf{Remark:} Include your .pdf, .tex, .oplproject, .project, .mod and .dat files for uploading.
+
+
+%========================================================================
+\end{document}

@@ -1,0 +1,138 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage{ctex}
+\usepackage{amsmath,amscd,amsbsy,amssymb,latexsym,url,bm,amsthm}
+\usepackage{epsfig,graphicx,subfigure}
+\usepackage{enumitem,balance}
+\usepackage{wrapfig}
+\usepackage{mathrsfs,euscript}
+\usepackage[usenames]{xcolor}
+\usepackage{hyperref}
+\usepackage[vlined,ruled,linesnumbered]{algorithm2e}
+\hypersetup{colorlinks=true,linkcolor=black}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{exercise}{Exercise}
+\newtheorem*{solution}{Solution}
+\newtheorem{definition}{Definition}
+\theoremstyle{definition}
+
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+
+\newcommand{\postscript}[2]
+ {\setlength{\epsfxsize}{#2\hsize}
+  \centerline{\epsfbox{#1}}}
+
+\renewcommand{\baselinestretch}{1.0}
+
+\setlength{\oddsidemargin}{-0.365in}
+\setlength{\evensidemargin}{-0.365in}
+\setlength{\topmargin}{-0.3in}
+\setlength{\headheight}{0in}
+\setlength{\headsep}{0in}
+\setlength{\textheight}{10.1in}
+\setlength{\textwidth}{7in}
+\makeatletter \renewenvironment{proof}[1][Proof] {\par\pushQED{\qed}\normalfont\topsep6\p@\@plus6\p@\relax\trivlist\item[\hskip\labelsep\bfseries#1\@addpunct{.}]\ignorespaces}{\popQED\endtrivlist\@endpefalse} \makeatother
+\makeatletter
+\renewenvironment{solution}[1][Solution] {\par\pushQED{\qed}\normalfont\topsep6\p@\@plus6\p@\relax\trivlist\item[\hskip\labelsep\bfseries#1\@addpunct{.}]\ignorespaces}{\popQED\endtrivlist\@endpefalse} \makeatother
+
+\begin{document}
+\noindent
+
+%========================================================================
+\noindent\framebox[\linewidth]{\shortstack[c]{
+\Large{\textbf{Lab10-NP and Reduction}}\vspace{1mm}\\
+CS214-Algorithm and Complexity, Xiaofeng Gao, Spring 2018.}}
+
+\begin{center}
+\footnotesize{\color{blue}$*$ Name:Hongyi Guo\quad Student ID: 516030910306\quad Email: guohongyi@sjtu.edu.cn}
+\end{center}
+
+\begin{enumerate}
+\item
+\emph{PARTITION}: Given a finite set $A$ and a size $s(a) \in \mathbb{Z}$ for each $a \in A$, is there a subset $A' \subseteq A$ such that $\sum_{a \in A'}s(a) = \sum_{a \in A-A'}s(a)$ ?
+
+\emph{SUBSET SUM}: Given a finite set $A$, a size $s(a) \in \mathbb{Z}$ for each $a \in A$ and an integer B, is there a subset $A' \subseteq A$ such that $\sum_{a \in A'}s(a) = B$?
+
+\emph{KNAPSACK}: Given a finite set $A$, a size $s(a) \in \mathbb{Z}$ and a value $v(a) \in \mathbb{Z}$ for each $a \in A$ and integers $B$ and $K$, is there a subset $A' \subseteq A$ such that $\sum_{a \in A'}s(a) \leq B$ and $\sum_{a \in A'}v(a) \geq K$?
+
+\begin{enumerate}
+\item
+Prove \emph{PARTITION} $\leq_p$ \emph{SUBSET SUM}.
+
+\begin{proof}
+	Create SUBSET SUM instance $\Phi$: the same finite set $A$, size $s(a)$ as PARTITION, $B=\frac{\sum_{a \in A}s(a)}{2}$. Then if PARTITION holds, 
+	$$
+	\sum_{a \in A'}s(a) = \sum_{a \in A-A'}s(a) = \sum_{a \in A}s(a) - \sum_{a \in A'}s(a) = \frac{\sum_{a \in A}s(a)}{2} = B
+	$$
+	So, $\Phi$ holds if and only if PARTITION holds. Therefore, PARTITION $\leq_p$ SUBSET SUM.
+	
+\end{proof}
+
+\item
+Prove \emph{SUBSET SUM} $\leq_p$ \emph{KNAPSACK}.
+
+\begin{proof}
+	Create KNAPSACK instance $\Phi$: the same $A$, $s(a)$, $B$ as SUBSET SUM. $v(a)=s(a)$, $K=B$. Then if SUBSET SUM holds, $\sum_{a \in A'}s(a) = B = K$. So, $\sum_{a \in A'}s(a) \leq B$ and $\sum_{a \in A'}v(a) \geq K$ holds, which means $\Phi$ holds if and only if SUBSET SUM holds. Therefore, SUBSET SUM $\leq_p$ KNAPSACK.
+	
+\end{proof}
+
+\end{enumerate}
+
+\item
+\emph{3SAT}: Given a set $U$ of variables, a collection $C$ of clauses over $U$ such that each clause $c \in  C$ has $|c| = 3$, is there a satisfying truth assignment for $C$?
+
+\emph{CLIQUE}: Given a graph $G = (V, E)$ and a positive integer $K \leq |V|$, is there a subset $V' \subseteq V$ with $|V'| \geq K$ such that every two vertices in $V'$ are joined by an edge in $E$?
+
+Prove \emph{3SAT} $\leq_p$ \emph{CLIQUE}.
+
+\begin{proof}
+	Given an instance $\Phi$ of 3SAT, suppose it has $K$ clauses, we construct an instance $(G,K)$ of CLIQUE that has a subset of size $K$ if and only if $\Phi$ is satisfiable.
+	
+	$G$ contains $3$ vertices for each clause, one for each literal. Then we connect each literal to literals in other clauses except its negations.
+
+	Then we claim $G$ contains a clique of size $K$ if and only if $\Phi$ is satisfiable.
+	
+	Prove $\Rightarrow$ let $C$ be a clique set of size $K$. $S$ must contain exactly one vertex in each triangle for there is no edge between any two vertices in one triangle. Then we can set the literals in $C$ to true. Note that a literal and its negation cannot appear in $C$ together for there is no edge between them. So truth assignment is consistent and all clauses are satisfied.
+	
+	Prove $\Leftarrow$ Given satisfying assignment, select one true literal from each triangle. This is a clique of size $k$ because any two literals in clique are adjacent directly.
+	
+\end{proof}
+
+\item
+\emph{ZERO-ONE INTEGER PROGRAMMING}: Given an integer $m \times n$ matrix $A$ and an integer $m$-vector $b$, is there an integer $n$-vector $x$ with elements in the set $\{0, 1\}$ such that $Ax \leq b$.
+
+Prove \emph{ZERO-ONE INTEGER PROGRAMMING} is NP-complete. (Hint: Reduce from \emph{3SAT})
+
+\begin{proof}
+	We prove this via proving 3SAT $\leq_p$ ZERO-ONE INTEGER PROGRAMMING.
+	
+	Given an instance $\Phi$ of 3SAT, suppose it has $m$ clauses, we construct an instance $P$ of ZERO-ONE INTEGER PROGRAMMING with a $m\times3$ matrix $A$ and $m$-vector $b$.
+	
+	This is how we construct $A$: for the $i^{th}$ clause in $\Phi$, we transfer it into the $i^{th}$ row in $A$.
+	$$
+	A[i][j] = 
+	\begin{cases}
+		-1, &\text{the $j^{th}$ element in the $i^{th}$ clause is $x_j$}\\
+		1,  &\text{the $j^{th}$ element in the $i^{th}$ clause is $\bar{x_j}$}
+	\end{cases}
+	$$
+	And,
+	$$
+	b[i] = -1 + \text{the number of $\bar{x_j}$'s in the $i^{th}$ clause}
+	$$
+	
+	Then we claim the vector integer $n$-vector $x$ with elements in the set $\{0, 1\}$ such that $Ax \leq b$ exists if and only if $\Phi$ is satisfiable.
+	
+	Suppose $Ax = c$. Due to our construction, in the $i^{th}$ clause, if all $x_j$ is true, then $c[i]=$the number of $\bar{x_j}$'s in the $i^{th}$ clause $=b[i]+1 > b[i]$. So $c[i]\leq b[i]$ if and only if $\exists j$, clause $i$ contains $\bar{x_j}$ and $x[i]=0$ or clause $i$ contains $\bar{x_j}$ and $x[i]=1$. We let $x_j$ indicates $x_j$ is true(1) or false(0). At this time, the clause is satisfied too. 
+	
+	For the same reason, when the clause is satisfied, $c[i]\leq b[i], \forall i$
+	
+\end{proof}
+
+\end{enumerate}
+
+%========================================================================
+\end{document}

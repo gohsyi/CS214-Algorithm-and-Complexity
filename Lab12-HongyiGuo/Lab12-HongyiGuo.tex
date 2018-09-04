@@ -1,0 +1,119 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage{ctex}
+\usepackage{amsmath,amscd,amsbsy,amssymb,latexsym,url,bm,amsthm}
+\usepackage{epsfig,graphicx,subfigure}
+\usepackage{enumitem,balance}
+\usepackage{wrapfig}
+\usepackage{mathrsfs,euscript}
+\usepackage[usenames]{xcolor}
+\usepackage{hyperref}
+\usepackage[vlined,ruled,linesnumbered]{algorithm2e}
+\hypersetup{colorlinks=true,linkcolor=black}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{exercise}{Exercise}
+\newtheorem*{solution}{Solution}
+\newtheorem{definition}{Definition}
+\theoremstyle{definition}
+
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+
+\newcommand{\postscript}[2]
+ {\setlength{\epsfxsize}{#2\hsize}
+  \centerline{\epsfbox{#1}}}
+
+\renewcommand{\baselinestretch}{1.0}
+
+\setlength{\oddsidemargin}{-0.365in}
+\setlength{\evensidemargin}{-0.365in}
+\setlength{\topmargin}{-0.3in}
+\setlength{\headheight}{0in}
+\setlength{\headsep}{0in}
+\setlength{\textheight}{10.1in}
+\setlength{\textwidth}{7in}
+\makeatletter \renewenvironment{proof}[1][Proof] {\par\pushQED{\qed}\normalfont\topsep6\p@\@plus6\p@\relax\trivlist\item[\hskip\labelsep\bfseries#1\@addpunct{.}]\ignorespaces}{\popQED\endtrivlist\@endpefalse} \makeatother
+\makeatletter
+\renewenvironment{solution}[1][Solution] {\par\pushQED{\qed}\normalfont\topsep6\p@\@plus6\p@\relax\trivlist\item[\hskip\labelsep\bfseries#1\@addpunct{.}]\ignorespaces}{\popQED\endtrivlist\@endpefalse} \makeatother
+
+\begin{document}
+\noindent
+
+%========================================================================
+\noindent\framebox[\linewidth]{\shortstack[c]{
+\Large{\textbf{Lab12-Approximation Algorithm II}}\vspace{1mm}\\
+CS214-Algorithm and Complexity, Xiaofeng Gao, Spring 2018.}}
+\begin{center}
+\footnotesize{\color{blue}$*$ Name: Hongyi Guo  \quad Student ID: 516030910306 \quad Email: guohongyi@sjtu.edu.cn}
+\end{center}
+
+\begin{enumerate}
+\item
+Let us consider the special case of the Maximum Cut problem in which the required partition of the node set must have the same cardinality. Define a polynomial-time local search algorithm for this problem and evaluate its performance ratio.
+
+\begin{solution}
+  First, we divide $V$ into two arbitrary partition $S$,$T$ with the same cardinality. Then for each pair of $u,v$ where $u\in S$, $v\in T$, we consider swapping them. We denote the number of vertices that $x$ is adjacent to in $S$ by $x_S$ and that in $T$ by $x_T$. Thus, if $u_T + v_S < u_S + v_T$, we should put $u$ into $T$ and put $v$ into $S$ and get a larger cut. We repeat this procedure until we can't find any pair of $u,v$ that can be swapped.
+
+  For each time we repeat the procedure, the cut must be increased by at least $1$. The maximum cut is at most $|E|$, so there are at most $|E|$ iterations. Our algorithm is polynomial.
+
+  When the algorithm stops, $\forall u\in S, \forall v\in T, u_T + v_S \geq u_S + v_T$. 
+  
+  So, $\sum u_T + \sum v_S \geq \sum u_S + \sum v_T$. Note that $\sum u_T = \sum v_S$.
+  
+  Thus, $\sum u_T \geq (\sum u_S + \sum v_T)/2 = |E| - \sum u_T$.
+
+  Then, $our~cut = \sum u_T \geq |E|/2 \geq maximum~cut / 2$. The performance ratio is $2$.
+\end{solution}
+
+\item
+\textbf{Minimum Weighted Vertex Cover:} Consider the weighted version of the Minimum Vertex Cover problem in which a non-negative weight $c_i$ is associated with each vertex $v_i$ and we look for a vertex cover having minimum total weight.
+
+\begin{enumerate}
+\item
+Given a weighted graph $G=(V, E)$ with a non-negative weight $c_i$ associated with each vertex $v_i$, please formulate the Minimum Weighted Vertex Cover problem as an integer linear program.
+
+\begin{solution}\quad
+
+  $\min~\sum\limits_{i=1}^{|V|} x_ic_i$
+
+  subject to
+  
+  \quad$x_i = \{0,1\}$,
+
+  \quad$\forall (v_i, v_j)\in E$, $x_i + x_j \geq 1$.
+\end{solution}
+
+\item
+Prove that the following algorithm finds a feasible solution of the Minimum Weighted Vertex Cover problem with value $m_{LP}(G)$ such that $m_{LP}(G)/m^*(G) \leq 2$.
+
+\begin{minipage}{0.8\textwidth}
+\centering
+\begin{algorithm}[H]
+\caption{Rounding Weighted Vertex Cover}
+\KwIn{Graph $G=(V, E)$ with non-negative vertex weights;}
+\KwOut{Vertex cover $V'$ of $G$;}
+\BlankLine
+Let $ILP_{VC}$ be the integer linear programming formulation of the problem\;
+Let $LP_{VC}$ be the problem obtained from $ILP_{VC}$ by LP-relaxation\;
+Let $x^*(G)$ be the optimal solution for $LP_{VC}$\;
+$V' \leftarrow \{v_i \ | \ x_i^*(G) \geq 0.5\}$\;
+\Return{$V'$};
+\end{algorithm}
+\end{minipage}
+
+\begin{proof}
+  In optimal solution for $LP_{VC}$, for each edge $(v_i,v_j)$, at least one of $x_i > 0.5$ and $x_j > 0.5$ should hold. Otherwise, $x_i + x_j > 1$ is impossible. So this algorithm provides a feasible solution.
+
+  For each vertex $v_i\in E$, $x_i$ is increased by a factor of at most $2$ because we only round those $x_i^*(G) \geq 0.5$ to $1$. So $m_{LP}(G)/m^*(G) \leq 2$.
+\end{proof}
+
+\end{enumerate}
+
+\end{enumerate}
+
+\vspace{20pt}
+
+%========================================================================
+\end{document}

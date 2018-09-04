@@ -1,0 +1,195 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage{ctex}
+\usepackage{amsmath,amscd,amsbsy,amssymb,latexsym,url,bm,amsthm}
+\usepackage{epsfig,graphicx,subfigure}
+\usepackage{enumitem,balance}
+\usepackage{wrapfig}
+\usepackage{mathrsfs,euscript}
+\usepackage[usenames]{xcolor}
+\usepackage{hyperref}
+\usepackage[vlined,ruled,linesnumbered]{algorithm2e}
+\hypersetup{colorlinks=true,linkcolor=black}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{exercise}{Exercise}
+\newtheorem*{solution}{Solution}
+\newtheorem{definition}{Definition}
+\theoremstyle{definition}
+
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+
+\newcommand{\postscript}[2]
+ {\setlength{\epsfxsize}{#2\hsize}
+  \centerline{\epsfbox{#1}}}
+
+\renewcommand{\baselinestretch}{1.0}
+
+\setlength{\oddsidemargin}{-0.365in}
+\setlength{\evensidemargin}{-0.365in}
+\setlength{\topmargin}{-0.3in}
+\setlength{\headheight}{0in}
+\setlength{\headsep}{0in}
+\setlength{\textheight}{10.1in}
+\setlength{\textwidth}{7in}
+\makeatletter \renewenvironment{proof}[1][Proof] {\par\pushQED{\qed}\normalfont\topsep6\p@\@plus6\p@\relax\trivlist\item[\hskip\labelsep\bfseries#1\@addpunct{.}]\ignorespaces}{\popQED\endtrivlist\@endpefalse} \makeatother
+\makeatletter
+\renewenvironment{solution}[1][Solution] {\par\pushQED{\qed}\normalfont\topsep6\p@\@plus6\p@\relax\trivlist\item[\hskip\labelsep\bfseries#1\@addpunct{.}]\ignorespaces}{\popQED\endtrivlist\@endpefalse} \makeatother
+
+\begin{document}
+\noindent
+
+%========================================================================
+\noindent\framebox[\linewidth]{\shortstack[c]{
+\Large{\textbf{Lab03-Greedy Strategy}}\vspace{1mm}\\
+CS214-Algorithm and Complexity, Xiaofeng Gao, Spring 2018.}}
+\begin{center}
+\footnotesize{\color{red}$*$ If there is any problem, please contact TA Xinyu Wu. }
+
+\footnotesize{\color{blue}$*$ Name: \underline{Hongyi Guo}\quad Student ID: \underline{516030910306}\quad Email: \underline{guohongyi@sjtu.edu.cn}}
+\end{center}
+
+\begin{enumerate}
+\item \textbf{Set Cover} is a typical kind of problems that can be solved by greedy strategy. One version is that: Given $n$ points on a straight line, denoted as $\{x_i\}_{i=1}^n$, and we intend to use minimum number of closed intervals with fixed length $k$ to cover these $n$ points.
+    \begin{enumerate}
+        \item Please design an algorithm based on greedy strategy to solve the above problem, in the form of \emph{pseudo code}. Then please analyze its \emph{worst-case} complexity.
+            \begin{solution} The pseudo code of the algorithm is as follows.\par
+            \begin{minipage}[t]{0.9\textwidth}
+            \begin{algorithm}[H]
+            	\BlankLine
+            	\SetKwInOut{Input}{input}
+            	\SetKwInOut{Output}{output}
+            	\caption{Set Cover}\label{Alg_SetCover}
+            	\Input{$n$, $k$, $\{x_i\}_{i=1}^n$.}
+            	\Output{Minimum number of closed intervals with fixed length $k$.}
+            	\BlankLine
+            	Mergesort $\{x_i\}_{i=1}^n$ in an ascending order\;
+                $result\leftarrow 1$\;
+            	$prev\leftarrow x_1$\;
+                \For{$i\leftarrow 1$ \textbf{to} $n$}{
+                    \If{$x_i-prev>k$}{
+                        // The last interval cannot cover it.\par
+                        // We let a new interval begin at it.\par
+                        $result\leftarrow result+1$\;
+                        $prev\leftarrow x_i$\;
+                    }
+                }
+                \textbf{output} result\;
+            \end{algorithm}
+            \end{minipage}
+            \BlankLine
+            Analysis of worst case.\par
+            The worst complexity of mergesort is O($n\log n$).\par
+            The \textbf{for} loop will be executed $n$ times. The complexity of each iteration is just O($1$). So the complexity of \textbf{for} loop is O($n$).\par
+            Thus, the worst time complexity of the algorithm should be O($n\log n$).
+            \end{solution}
+
+        \item Please prove the correctness of your algorithm.\par
+            \begin{solution}
+            We assume the intervals are put one by one and their coordinates are in the ascending order. That's why we need to sort the points in the ascending order. So the first interval must cover the first point.
+
+            The first interval should begin where the first point locates. The reason is quite obvious. If it starts at a position forward, it will cover the empty space on the left of the first points where there is no points. That is a waste of interval. But if it starts a little backward, it will not cover the first point, which contradicts that it's the first interval. Thus, the first interval begins where the first point locates. And for the same reason, the second interval begins where locates the first point that the last interval cannot cover. And so does the third, forth... points. So we've proved the correctness of the greedy algorithm.
+
+            \end{solution}
+
+        \item Please complete the provided source code by C/C++ {\color{blue}(The source code \emph{Code-SetCover.cpp} is attached on the course webpage)}, and please write down the output result by testing the following inputs:
+            \begin{enumerate}
+            \item the number of points $n=7$;
+            \item the coordinates of points
+                $x=\{1,2,3,4,5,6,-2\}$;
+            \item the length of intervals
+                $k=3$.
+            \end{enumerate}
+            \begin{verbatim}
+int Greedy(int x[], int k, int n)
+{
+    quickSort(x, 0, n-1);
+    int result = 1, prev = x[0];
+    for (int i = 0; i < n; i++) {
+        if (x[i] - prev > k) {
+            result++;
+            prev = x[i];
+        }
+    }
+    return result;
+}
+        \end{verbatim}
+    \end{enumerate}
+
+\item $G$ is an undirected graph. A set of cycles $\{c_1, c_2, \ldots , c_k\}$ in $G$ is called redundant if every
+    edge appearing in at least one cycle in $\{c_1, c_2, \ldots , c_k\}$ appears in an even number of $c_i$'s. A set of cycles is \emph{independent} if it contains no
+    redundant subset. A maximal independent set of cycles is called a \emph{cycle basis} for $G$.
+
+\begin{enumerate}
+\item Let $\mathbf{C}$ be any cycle basis for $G$. Prove that for any cycle $\gamma$ in $G$, there is a subset $A \subseteq \mathbf{C}$ such that $A \cup \{\gamma\}$ is redundant. In other words, $\gamma$ is ``exclusive" of the cycles in $A$.
+
+    \begin{proof} Assume there is no subset $A \subseteq \mathbf{C}$ such that $A \cup \{\gamma\}$ is redundant. We take $C_1,C_2,\dots,C_n$ as the subsets of $\mathbf{C}$. Then none of them is redundant. Then we let $\mathbb{C'}=C\cup\{\gamma\}$. All subsets of $\mathbb{C'}$ are $C_1,C_2,\dots,C_n,C_1\cup\{\gamma\},C_2\cup\{\gamma\},\dots,C_n\cup\{\gamma\},\{\gamma\}$. $C_1,C_2,\dots,C_n$ are obvious not redundant. $C_1\cup\{\gamma\},C_2\cup\{\gamma\},\dots,C_n\cup\{\gamma\}$ are not redundant because of the assuming. $\{\gamma\}$ is not redundant for it only contains one cycle. Thus, none of those subsets is redundant. So $\mathbb{C'}$ is an independent set with more cycles than $\mathbf{C}$, which contradicts with that $\mathbf{C}$ is a maximal independent set of cycles.
+
+    \end{proof}
+
+\item Prove that the set of independent cycle sets form a matroid.
+
+\begin{proof}\quad\par
+    First, we prove that the set of independent cycle $\mathbf{C}$ satisfies the hereditary property by proving $A\subset B$, $B\in \mathbf{C}$ $\Rightarrow$ $A\in\mathbf{C}$. If $A\subset B$, $B\in \mathbf{C}$, then none of the subsets of $B$ is redundant. Considering all the subsets of $A$ should also be subsets of $B$, they are not redundant, either. So, $A$ is independent, $A\in \mathbf{C}$.
+
+    Next, we prove that $\mathbf{C}$ satisfies the exchange property by proving $A,B\in\mathbf{C}$ and $|A|<|B|$ $\Rightarrow$ $\exists x\in B\backslash A$ $s.t.$ $A\cup\{x\}\in\mathbf{C}$.
+
+    Assume there are totally $m$ edges in $G$, $e_1, e_2,\dots,e_m$. We make a function $f$, whose input is a set of cycles $S$ and output is a $m$-length row vector of $0$ and $1$. The $i_{th}$ element indicates whether the $i_{th}$ edge appears in an even(0) or odd(1) number of $S_i$'s. Obviously $f(S_1\cup S_2)=f(S_1)+f(S_2)\pmod{2}$ ($S_1\cap S_2=\emptyset$). We put some rows $A_i$ of $A$ into a set $S$, the corresponding output $f$ of them is $\sum_{i}f(A'_i)\pmod{2}$. So the operation of uniting $A_i$'s equals to do linearly transformation to $A'_i$'s. A set of cycle is redundant when and only when its output $f$ is all zero vector. Meanwhile, $f(\{A_i\}),f(\{A_i\}),\dots,f(\{A_a\})$ is linearly dependent if and only if after a series of linearly transformation, some of them becomes zero vector.
+
+    So, $A$ is independent if and only if every row of $A'$ is linearly independent.
+
+    Because $A_1,A_2,\dots,A_a$ is linearly independent, every $B_i$ is dependent with at most one $A_i$. For arbitrary $B_i$ and $B_j$, they cannot be dependent with the same $A_k$ because $B_1,B_2,\dots,B_b$ is independent. Thus, at most $a$ vectors of $B$ is dependent with $A$. So for $a<b$, there must be an $i$ such that $A_1,A_2,\dots,A_a,B_i$ are independent. Thus, $\mathbf{C}$ satisfies the exchange property.
+
+    Together, $\mathbf{C}$ is matroid.
+
+\end{proof}
+
+\item Now suppose each edge of $G$ has a weight, and $G$ contains $n$ vertices and $m$ cycles. Define the weight of a cycle to be the total weight of its edges, and the weight of a set of cycles to be the total weight of all cycles in the set. (Thus, each edge is counted once for every cycle in which it appears.) Design an efficient algorithm to compute the minimum-weight cycle basis in $G$ in the form of \emph{pseudo code}, and analyze its \emph{worst-case} time complexity.
+
+    \begin{solution} The pseudo code:
+
+    \begin{minipage}[t]{0.9\textwidth}
+    \begin{algorithm}[H]
+    	\BlankLine
+    	\SetKwInOut{Input}{input}
+    	\SetKwInOut{Output}{output}
+    	\caption{Minimum-weight Cycle Basis}\label{Alg_MinimumCycleBasis}
+    	\Input{$n$ vertices, $m$ cycles, $l$ edges; cycles are given by array of vectors mentioned in the 2nd question.}
+    	\Output{The minimum-weight cycle basis.}
+    	\BlankLine
+    	Calculate the weight of every cycle\;
+        Sort the cycles based on their weight in an descending order\;
+        \BlankLine
+        $C$ is a $m\times l$ all-zero matrix\;
+        $Results\leftarrow\emptyset$\;
+        $cnt\leftarrow 0$\;
+        \For{$i\leftarrow 1$ \textbf{to} $m$}{
+            $C'\leftarrow C$\;
+            Add $cycles_i$ to $C'$\;
+            Use Gaussian Elimination to calculate the rank $r$ of $C'$\;
+            \If{$r=cnt+1$}{
+                $C\leftarrow C'$\;
+                Add $cycles_i$ into $Results$\;
+            }
+        }
+        \textbf{output} $Results$\;
+    \end{algorithm}
+    \end{minipage}
+
+    \emph{Worst-case} time complexity analysis.
+
+    The worst-case of time complexity of the sort is $O(m\log m)$ if we use mergesort. The \textbf{for} loop is executed $m$ times. The worst time complexity of copying Matrix $C$ is $O(ml)$. The Gaussian Elimination is at most $O(m^3)$. Thus, the worst time complexity of for loop is $O(m^3)$.
+
+    In conclusion, the worst-case time complexity is $O(m^3)$.
+    \end{solution}
+
+\end{enumerate}
+
+\end{enumerate}
+
+\textbf{Remark:} You need to include your .pdf, .tex, and .cpp files in your uploaded .rar or .zip file.
+
+%========================================================================
+\end{document}

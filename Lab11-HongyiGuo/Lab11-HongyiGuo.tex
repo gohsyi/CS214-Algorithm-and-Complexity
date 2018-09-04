@@ -1,0 +1,217 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage{ctex}
+\usepackage{amsmath,amscd,amsbsy,amssymb,latexsym,url,bm,amsthm}
+\usepackage{epsfig,graphicx,subfigure}
+\usepackage{enumitem,balance}
+\usepackage{wrapfig}
+\usepackage{mathrsfs,euscript}
+\usepackage[usenames]{xcolor}
+\usepackage{hyperref}
+\usepackage[vlined,ruled,linesnumbered]{algorithm2e}
+\usepackage{float}
+\usepackage{multirow}
+
+\hypersetup{colorlinks=true,linkcolor=black}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{exercise}{Exercise}
+\newtheorem*{solution}{Solution}
+\newtheorem{definition}{Definition}
+\theoremstyle{definition}
+
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+
+\newcommand{\postscript}[2]
+ {\setlength{\epsfxsize}{#2\hsize}
+  \centerline{\epsfbox{#1}}}
+
+\renewcommand{\baselinestretch}{1.0}
+
+\setlength{\oddsidemargin}{-0.365in}
+\setlength{\evensidemargin}{-0.365in}
+\setlength{\topmargin}{-0.3in}
+\setlength{\headheight}{0in}
+\setlength{\headsep}{0in}
+\setlength{\textheight}{10.1in}
+\setlength{\textwidth}{7in}
+\makeatletter \renewenvironment{proof}[1][Proof] {\par\pushQED{\qed}\normalfont\topsep6\p@\@plus6\p@\relax\trivlist\item[\hskip\labelsep\bfseries#1\@addpunct{.}]\ignorespaces}{\popQED\endtrivlist\@endpefalse} \makeatother
+\makeatletter
+\renewenvironment{solution}[1][Solution] {\par\pushQED{\qed}\normalfont\topsep6\p@\@plus6\p@\relax\trivlist\item[\hskip\labelsep\bfseries#1\@addpunct{.}]\ignorespaces}{\popQED\endtrivlist\@endpefalse} \makeatother
+
+\begin{document}
+\noindent 
+
+%========================================================================
+\noindent\framebox[\linewidth]{\shortstack[c]{
+\Large{\textbf{Lab11-Approximation Algorithm}}\vspace{1mm}\\
+Algorithm and Complexity (CS214), Xiaofeng Gao, Spring 2018.}}
+\begin{center}
+\footnotesize{\color{blue}$*$ Name: Hongyi Guo \quad Student ID: 516030910306 \quad Email: guohongyi@sjtu.edu.cn}
+\end{center}
+
+\begin{enumerate}
+
+\item Write $(I,sol,m,goal)$ for
+     \textbf{Max \emph{k}-Cover} and \textbf{Minimum Bin Packing} {\color{blue}(refer Q2, Q3 below)}.
+\begin{solution}\quad
+	
+		\centering
+		\newcommand{\tabincell}[2]{\begin{tabular}{@{}#1@{}}#2\end{tabular}}
+		\begin{tabular}{|c|c|c|c|c|}
+			\hline
+			name & $I$ & $sol$ & $m$ & $goal$\\
+			\hline
+			Max \emph{k}-Cover & 
+			\tabincell{c}{$U=\{e_1,\cdots,e_n\}$ and a \\ collection of $m$ subsets\\ $S=\{S_1,\cdots,S_m\}$ of $U$} &
+			\tabincell{c}{$k$ subsets from $S$ \\ $S_{i_1} \dots S_{i_k}$} &
+			\tabincell{c}{number of $e_i$'s \\ s.t.$\exists j, e_i\in S_{i_j}$} &
+			max\\
+			\hline
+			\tabincell{c}{Minimum \\Bin Packing} &
+			\tabincell{c}{a finite rational set\\ $F=\{a_i\}_{i=1}^n$,\\ where $a_i\in (0,1]$} &
+			\tabincell{c}{$\{\{F_i\}_{i=1}^k | \cup_{i=1}^k F_i=F,$ \\ $\forall i,j\in k,i\neq j, F_i\cap F_j = \emptyset$ \\ $\forall i,1\leq i\leq k, \sum_{a\in F_i} a \leq 1\}$} &
+			k &
+			min\\
+			\hline
+		\end{tabular}
+	
+\end{solution}
+
+\item \textbf{Max \emph{k}-Cover:} Given a universe $U=\{e_1,\cdots,e_n\}$ of $n$ elements, a collection of $m$ subsets $S=\{S_1,\cdots,S_m\}$ of $U$, and a positive integer $k<m$. Our goal is to pick $k$ subsets to \emph{maximize} the number of covered elements. One greedy approach is shown in Algorithm \ref{Alg:2-Greedy}.
+
+\begin{center}
+\begin{minipage}{0.7\textwidth}
+\begin{algorithm}[H]
+	\caption{Greedy Max $k$-Cover}\label{Alg:2-Greedy}
+	\LinesNumbered
+	\KwIn{$U$,$\{S_i\}_{i=1}^m,k$.}
+	\KwOut{$k$ subsets from $\{S_i\}_{i=1}^m$.}
+	$V \leftarrow U$; $W \leftarrow \emptyset$\;
+	\For{$i=1$ to $k$}
+	{
+		Pick $S_j$ that covers max number in $V$\;
+		$V\leftarrow V\backslash S_j$; $W\leftarrow W\cup S_j$\;
+	}
+	\Return $W$\;
+\end{algorithm}
+\end{minipage}
+\end{center}
+
+\begin{enumerate}
+\item \label{Problem1b:Greedy}Denote $opt$ as the max number of covered elements; $\gamma_i$ as the number of elements covered by greedy after $i$ iterations; $\beta_i=opt-\gamma_i$. Show that $\gamma_i-\gamma_{i-1}\geq \frac{\beta_{i-1}}{k}$;
+
+\begin{solution}
+   	We denote $W_i$ as the sets chosen by greedy algorithm after $i$ iterations, and $W^\star$ as all sets chosen by optimal algorithm. It's clear that sets in $W^\star\backslash W_i$ can cover at least $opt-\gamma_i$ elements. On average, each of them can cover at least $\frac{opt-\gamma_i}{| W^\star\backslash W_i|} > \frac{opt-\gamma_i}{k}$ elements.
+   	
+   	In greedy algorithm, $S_j$ can cover the most number of elements among the remaining sets, so it definitely exceeds the average level. Therefore, $\gamma_i-\gamma_{i-1} \geq \frac{opt-\gamma_i}{k}$. 
+\end{solution}
+
+\item Prove that Algorithm \ref{Alg:2-Greedy} is an $r$-approximation where $r\leq 1+\frac{1}{e-1}$, based on Problem \ref{Problem1b:Greedy}.
+
+\begin{solution}
+   	From problem 2a, we already proved that $\gamma_i-\gamma_{i-1}\geq \frac{\beta_{i-1}}{k}$. 
+   	
+   	So, $$\gamma_k \geq \frac{opt-\gamma_{k-1}}{k} + \gamma_{k-1} = \frac{opt}{k} + (1-\frac{1}{k})\gamma_{k-1}$$.
+   	
+   	Then we get $$opt-\gamma_k \leq (1-\frac{1}{k})(opt-\gamma_{k-1})$$ which is like a geometric sequence, then we can get following inequality equation via the property of geometric sequence.
+   	
+   	$$opt-\gamma_k \leq (1-\frac{1}{k})(opt-\gamma_0) = (1-\frac{1}{k})^k\times opt$$
+   	
+   	Therefore, $$\gamma_k \geq opt\times\left[1-(1-\frac{1}{k})^k\right] > opt\times(1 - \frac{1}{e})$$.
+   	
+   	So, the greedy algorithm is an $r$-approximation where $r = \frac{1}{1-\frac{1}{e}} = \frac{e}{e-1} = 1+\frac{1}{e-1}$.
+\end{solution}
+
+\end{enumerate}
+
+\item \textbf{Minimum Bin Packing:} Given a finite rational set $F=\{a_i\}_{i=1}^n$, where $a_i\in (0,1]$. We need to find a partition $\{F_i\}_{i=1}^k$ of $F$ with no intersection and $\cup_{i=1}^k F_i=F$ with \emph{minimum} $k$. The numbers in $F_i$ are put into a bin, and the sum of numbers in each bin is at most $1$. An idea to design a \emph{sequential} algorithm is that for each number $a_i$, if $a_i$ can fit into the last open bin then assign $a_i$ to this bin, or else we open a new bin and assign $a_i$ to it. Note that  $\{a_i\}_{i=1}^n$ are NOT sorted in this algorithm.
+    \begin{enumerate}
+    \item Show that the approximation ratio of the algorithm by the idea above is at most $r=2$.
+    \begin{solution}
+    	In any solution, the number of bins should be non-less than the sum of all numbers in $F$, otherwise they can't hold all numbers.
+    	
+    	In the greedy algorithm, the first number in the $j$th($j>1$) bin is larger than the remaining place in the $j-1$th bin. So the sum of number in two adjacent bin is larger than $1$.
+    	
+    	Denote the number of bins in the sequential algorithm by $m_s$ and in the optimal algorithm, $m^\star$. Suppose in the sequential algorithm, sum of number in the $j$th bin is $b_j$. 
+    	
+    	Whether $m_s$ is odd or even will not make much effect to $r$, we may as well assume $m_s$ is even, then $$\sum_{j=1}^{m_s}b_j = \sum_{j=1}^{m_s/2}(b_{j*2-1} + (b_{j*2})) > \sum_{j=1}^{m_s/2} = m_s/2$$
+    	
+    	So, $$m_s < 2\times\sum_{j=1}^{m_s}b_j = 2\times\sum_{i=1}^{n}a_i \leq 2m^\star$$
+    	
+		Therefore, the approximation ratio of the sequential algorithm is at most $r=2$.
+    \end{solution}
+
+    \item {\color{red}(Optional Subquestion with Bonus)} Give an input instance to show the tightness of $r=2$.
+    \begin{solution}
+ 		For any given $0 < \epsilon < 1$. We can construct an instance as following.
+    	$$
+    	F = \underbrace{\{\epsilon, 1, \epsilon, 1, \dots, \epsilon\}}_{\frac{1}{\epsilon}~\epsilon's,~\frac{1}{\epsilon}-1~1's}
+    	$$
+    	
+    	The result given by greedy algorithm is $\frac{2}{\epsilon}-1$.
+    	
+    	The result given by optimal algorithm is $\frac{1}{\epsilon}$.
+    	
+    	Therefore, $r = \frac{2/\epsilon-1}{1/\epsilon} = 2-\epsilon$. As long as $\epsilon$ is small enough, $r$ is close to $2$ infinitely.
+    \end{solution}
+    \end{enumerate}
+
+\item Consider the \emph{Revised Greedy Knapsack} Algorithm {\color{blue}(refer $GreedyKnapsack$ in $Slide17$)}.
+
+\begin{minipage}[t]{1.02\linewidth}
+\centering
+\begin{algorithm}[H]
+ \caption{Revised Greedy Knapsack}\label{Alg:1-RevisedGreedyKnapsack}
+ \LinesNumbered
+ \KwIn{$X$ with $n$ items; $b$; $\{p_i\}_{i=1}^n$; $\{a_i\}_{i=1}^n$; $\epsilon>0$.}
+ \KwOut{$val(Y):$ The total value of $Y$ where $Y\subseteq X$ such that $\sum_{x_i\in Y} a_i\leq b$.}
+ $Y_0\leftarrow GreedyKnapsack(X,b,\{p_i\}_{i=1}^n,\{a_i\}_{i=1}^n)$; $h\leftarrow \epsilon \cdot val(Y_0)$\;
+ Set $I_h\leftarrow\{i \mid 1\leq i\leq n,p_i\leq h\}$, and reorder them as $I_h=\{1,2,\cdots,m\}$ $(m\leq n)$, where $\{\frac{p_i}{a_i}\}_{i=1}^m$ is nonincreasing; $temp\leftarrow 0$; $currenttemp\leftarrow val(Y_0)$\;
+ \ForEach{$I\subseteq \{m+1,m+2,\cdots,n\}$ such that $|I|\leq \frac{2}{\epsilon}$}
+ {
+    \lIf{$\sum_{i\in I} a_i>b$}{$temp\leftarrow 0$\;}
+    \lElseIf{$\sum_{i=1}^m a_i\leq b-\sum_{i\in I} a_i$}{$temp\leftarrow \sum_{i=1}^m p_i+\sum_{i\in I} p_i$\;}
+    \lElse{Find max $k$ s.t. $\sum_{i=1}^k a_i\leq b-\sum_{i\in I} a_i<\sum_{i=1}^{k+1} a_i$ and $temp\leftarrow \sum_{i=1}^k p_i+\sum_{i\in I} p_i$\;}
+    \lIf{$currenttemp<temp$} {$currenttemp\leftarrow temp$ and update $Y$\;}
+ }
+ \Return $val(Y)\leftarrow currenttemp$\;
+ \end{algorithm}
+\end{minipage}
+
+\begin{enumerate}
+\item Time complexity: $O(f(n,\epsilon))=O(\_\_\_\_\_)$. (Sort: $O(n\log n)$).
+\begin{solution}
+\begin{equation}
+	\begin{aligned}
+	O(f(n,\epsilon))
+	&= O\left(n\log n + m*{n-m\choose1} + m*{n-m\choose2} + \dots + m*{n-m\choose\lfloor\frac{2}{\epsilon}\rfloor}\right)\\
+	&= O\left(n\log n + m*(n-m)^{\lfloor\frac{2}{\epsilon}\rfloor}\right)
+	\end{aligned}
+\end{equation}
+\end{solution}
+\item The approximation ratio is $1+\epsilon$ when $\epsilon<1$, then is it a log-APX? an APX? a PTAS? an FPTAS?
+\begin{solution}\quad\par
+	\begin{table}[h]
+	\centering
+	\begin{tabular}{|c|c|}
+		\hline
+		$\log$-APX & No\\
+		\hline
+		APX & Yes\\
+		\hline
+		PTAS & Yes\\
+		\hline
+		FPTAS & No\\
+		\hline
+	\end{tabular}
+	\end{table}
+\end{solution}
+\end{enumerate}
+
+\end{enumerate}
+
+%========================================================================
+\end{document}

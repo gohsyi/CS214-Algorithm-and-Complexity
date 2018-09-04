@@ -1,0 +1,177 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage{ctex}
+\usepackage{amsmath,amscd,amsbsy,amssymb,latexsym,url,bm,amsthm}
+\usepackage{epsfig,graphicx,subfigure}
+\usepackage{enumitem,balance}
+\usepackage{wrapfig}
+\usepackage{mathrsfs,euscript}
+\usepackage[usenames]{xcolor}
+\usepackage{hyperref}
+\usepackage[vlined,ruled,linesnumbered]{algorithm2e}
+\hypersetup{colorlinks=true,linkcolor=black}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{exercise}{Exercise}
+\newtheorem*{solution}{Solution}
+\newtheorem{definition}{Definition}
+\theoremstyle{definition}
+
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+
+\newcommand{\postscript}[2]
+ {\setlength{\epsfxsize}{#2\hsize}
+  \centerline{\epsfbox{#1}}}
+
+\renewcommand{\baselinestretch}{1.0}
+
+\setlength{\oddsidemargin}{-0.365in}
+\setlength{\evensidemargin}{-0.365in}
+\setlength{\topmargin}{-0.3in}
+\setlength{\headheight}{0in}
+\setlength{\headsep}{0in}
+\setlength{\textheight}{10.1in}
+\setlength{\textwidth}{7in}
+\makeatletter \renewenvironment{proof}[1][Proof] {\par\pushQED{\qed}\normalfont\topsep6\p@\@plus6\p@\relax\trivlist\item[\hskip\labelsep\bfseries#1\@addpunct{.}]\ignorespaces}{\popQED\endtrivlist\@endpefalse} \makeatother
+\makeatletter
+\renewenvironment{solution}[1][Solution] {\par\pushQED{\qed}\normalfont\topsep6\p@\@plus6\p@\relax\trivlist\item[\hskip\labelsep\bfseries#1\@addpunct{.}]\ignorespaces}{\popQED\endtrivlist\@endpefalse} \makeatother
+
+\begin{document}
+\noindent
+
+%========================================================================
+\noindent\framebox[\linewidth]{\shortstack[c]{
+\Large{\textbf{Lab01-Proof, Algorithm Design and Analysis}}\vspace{1mm}\\
+CS214-Algorithm and Complexity, Xiaofeng Gao, Spring 2018.}}
+\begin{center}
+
+\footnotesize{\color{blue}$*$ Name: \underline{Hongyi Guo}  \quad Student ID: \underline{516030910306} \quad Email: \underline{guohongyi@sjtu.edu.cn}}
+\end{center}
+
+\begin{enumerate}
+\item
+\begin{enumerate}
+\item \textbf{(Proof by Contrapositive)} Suppose $a,b,c\in \mathbb{Z}$. Please prove:  If $a^2+b^2=c^2$, then $a\times b$ is even. {\color{blue}(Hint: $\forall m \in \mathbb{N}, m^2\mod 4 = 0$ or $1$)}
+
+    \begin{proof}
+    \item We change this statement by its logically equivalence: If $a \times b$ is odd, then $a^2+b^2\neq c^2$.
+
+    If $a \times b$ is odd, then obviously a is odd and b is odd.
+    Assume $a=2m+1, b=2n+1 (m,n\in\mathbb{Z})$.
+    Then $a^2+b^2=4(m^2+n^2+m+n)+2$. Thus, $a^2+b^2\equiv 2 \pmod{4}$.
+    Meanwhile, $c^2\equiv 0$ or $1 \pmod{4}$.
+
+    Therefore, $a^2 + b^2 \neq c^2$.
+    \end{proof}
+
+\item \textbf{(Course-of-Values Induction)} Let $P=\{p_1, p_2, \cdots\}$ the set of all primes. Suppose that $\{p_i\}$ is monotonically increasing, i.e., $p_1=2$, $p_2=3$, $p_3=5$, $\cdots$. Please prove: $p_n<2^{2^n}$. {\color{blue}(Hint: $p_i \nmid (1+\prod_{j=1}^n p_j), i=1,2,\cdots,n$.)}
+
+    \begin{proof}
+    \item Hypothesise for $k>1$ and $1 \leq n \leq k$, $P(n)$ is true, which means $p_n<2^{2^n}$.
+
+    Assume $p_{k+1} \geq 2^{2^{k+1}}$.
+
+    We assign $q=1+\prod\nolimits_{j=1}^k p_j$.
+    Obviously $q>p_k$. Meanwhile, $$q < 1+\prod_{j=1}^k 2^{2^k} = 1+2^{2^{k+1}-2} \leq 2^{2^{k+1}} \leq p_{k+1}$$
+    Thus, $p_k<q<p_{k+1}$. Then $q$ is not a prime for there is no prime between $p_k$ and $p_{k+1}$. Therefore, $\exists p \in \{p_1, p_2, \cdots, p_k\}, p \mid q$, which contradicts the hint $p_i \nmid (1+\prod_{j=1}^n p_j), i=1,2,\cdots,n$.
+
+    So the assumption $p_{k+1}\geq2^{2^{k+1}}$ fails. Thus, $p_{k+1}<2^{2^{k+1}}$. $P(k+1)$ is true.
+
+    Together, $p_n<2^{2^n} (n \in \mathbb{N})$.
+    \end{proof}
+\end{enumerate}
+
+\item Please analyze the time complexity of Algorithm \ref{Alg-Insertion} with brief explanations.
+
+\begin{minipage}[t]{0.94\textwidth}
+\begin{algorithm}[H]
+\KwIn{An array $A[1,\cdots,n]$}
+\KwOut{$A[1,\cdots,n]$ sorted nonincreasingly}
+\BlankLine
+\caption{`Modified' InsertionSort}
+\label{Alg-Insertion}
+\For{$i\leftarrow 2$ to $n$}{
+    $x \leftarrow A[i]$\;
+
+    $k \leftarrow BinarySearch(A[1,\cdots,i-1],x)$;
+    {\color{blue}//Finding $k$ such that $A[k-1]\geq x \geq A[k]$ by binary search ($A[1]\geq x$ or $x\geq A[i-1]$ for two boundary points).}\
+
+    \For{$j \leftarrow i-1$ \textbf{downto} $k$}{
+        $A[j+1]\leftarrow A[j]$\;
+    }
+    $A[k]\leftarrow x$\;
+}
+\end{algorithm}
+\end{minipage}\newpage
+
+\begin{solution}
+\item The time complexity of Algorithm 1 is O($n^2$).
+    The outer \textbf{for} is executed $n-1$ times. The inner \textbf{for} is executed at most $i-1$ times. The complexity of each Binary search is $O(\log (i-1))$, which is much smaller than the complexity of inner \textbf{for} and can be ignored.
+    $$\sum\limits_{i=2}^n (i-1)={n(n-1)}/2=O(n^2)$$
+    \end{solution}
+
+\item \textbf{Top-$k$ Search:} In reality, we sometimes intend to identify the first $k$ maximum (minimum) elements in an array with size $n$. This problem is commonly called \emph{Top-$k$ Search}. Suppose that the array we consider is $\{a_1, a_2, \cdots, a_n\}$ and we intend to find the $k$ maximum elements. A common approach is to use sorting on the array from maximum to minimum and select the first $k$ elements. Please answer the following questions:
+    \begin{enumerate}
+    \item \label{Question3a} Ana, a student of course CS214, wonders if the time complexity can be lowered. She is enlightened that \underline{we only need to identify these $k$ elements but do not need to sort them} in the requirement of this problem. She notices that when $k=1$, the time complexity decreases to O($n$). Hence she guesses that there may be an algorithm to solve this problem with time complexity O($nk$), lower than the insertion sort. Please tell Ana whether her guess is realizable. If so, please design such an algorithm written in pseudo code; If not, please tell her the reason.
+
+        \begin{solution}
+        \item Yes, it's easy to solve this problem with time complexity O($nk$).
+
+        \begin{minipage}[t]{0.94\textwidth}
+        \begin{algorithm}[H]
+        \KwIn{An array $A[1,\cdots,n]$, k}
+        \KwOut{$B[1,\cdots,k]$ the $k$ maximum elements of $A$}
+        \label{Alg-topK}
+        \BlankLine
+        \caption{Top-$k$ Search,O($nk$)}
+        \For{$i\leftarrow 1$ to $n$} {
+            $chosen[i] \leftarrow false$;
+            {\color{blue} //chosen[i]: whether A[i] is chosen as one of the k-top elements.}
+        }
+        \For{$i \leftarrow 1$ to $k$} {
+            $curMax \leftarrow -\infty$\;
+            $curMaxIndex \leftarrow 1$\;
+            \For{$j \leftarrow 1$ to $n$} {
+                \If{$chosen[j]=false$ \textbf{and} $A[j]>curMax$}{
+                    $curMax \leftarrow A[j]$\;
+                    $curMaxIndex \leftarrow j$\;
+                }
+            }
+            $B[i] \leftarrow curMax$\;
+            $chosen[curMaxIndex] \leftarrow true$\;
+        }
+        \end{algorithm}
+        \end{minipage}
+        \end{solution}\newpage
+
+    \item If you answer `Yes' in Problem \ref{Question3a}, then please consider: Whether the time complexity can be further reduced to O($n\log k$)? You can just write your ideas without the need to write an algorithm. {\color{blue}(Hint: Consider better data structure.)}
+        \begin{solution}
+        \item Yes, the time complexity can be further reduced to O($n\log k$) as following steps:
+
+            \textbf{step 1.} Construct a min heap and push the first $k$ elements of the array into the heap. The complexity of this step is O($k$).
+
+            \textbf{step 2.} For each element in the rest, say $x$, compare it with the top of the min heap, say $t$. If $x<t$, pop $t$ and push $x$ into the heap.
+            \underline{The complexity of this step is O($n\log k$)}.
+
+            \textbf{step 3.} In the last, all elements in the heap are the first $k$ maximum elements in the given array. You can pop k times to fetch them, whose complexity is O($k\log k$).
+
+            \textbf{Analyse:} We consider the elements of the min heap are the candidates of \emph{top-k}. There can only be $k$ candidates in one moment. The first $k$ elements are initial candidates. But the rest are going to challenge them. Each of them just needs to defeat the current weakest candidate which is the top of the heap. If one of them successes, it'll weed out the failed candidate and become a new one. The final candidates are the top-k elements.
+        \end{solution}
+
+    \item {\color{red}{(Optional Sub-question with Bonus)}} Consider a special case where there are many repeated elements in the array. Specifically, we suppose there are O($\log n$) different values in the array. Then whether the time complexity can be O($n \log\log n$), which further lowers the complexity for $k=\omega(\log n)$? You can just write your ideas without the need to write an algorithm. {\color{blue}(Hint: Construct AVL Tree.)}
+        \begin{solution}
+        \item Yes, the time complexity can be O($n \log\log n$) using AVL Tree or other balanced trees. Use AVL Tree as an example:
+
+            \textbf{step 1.} Build an special AVL Tree which is empty at the beginning. Each node has extra data members $cnt$ and $size$. $cnt$ records how many elements in the array has the same value with this node. $size$ is the size of the subtree whose root is this node, which equals to $leftChild\rightarrow size+rightChild\rightarrow size+cnt$. The size of empty node is $0$.
+
+            \textbf{step 2.} Insert every element in the array to the AVL Tree. For each element, if the tree has a node whose value is the same with it, then plus the $cnt$ of that node by $1$. Otherwise, insert a new node with the value of that element and the $cnt$ of $1$. For there are only $\log n$ different values in the array, the height of the AVL tree is O($\log n$).
+            \underline{So the time complexity of this step is O($n\log\log n$)}.
+
+            \textbf{step 3.} With the data member $cnt$ and $size$, it's easy to get the top-k elements from the AVL Tree. Different methods have different time complexity but it's definitely smaller than O($n\log\log n$) in step 2.
+        \end{solution}
+    \end{enumerate}
+\end{enumerate}
+%========================================================================
+\end{document}

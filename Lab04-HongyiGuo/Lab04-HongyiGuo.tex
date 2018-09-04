@@ -1,0 +1,307 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage{ctex}
+\usepackage{amsmath,amscd,amsbsy,amssymb,latexsym,url,bm,amsthm}
+\usepackage{epsfig,graphicx,subfigure}
+\usepackage{enumitem,balance}
+\usepackage{wrapfig}
+\usepackage{mathrsfs,euscript}
+\usepackage[usenames]{xcolor}
+\usepackage{hyperref}
+\usepackage[vlined,ruled,linesnumbered]{algorithm2e}
+\hypersetup{colorlinks=true,linkcolor=black}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{exercise}{Exercise}
+\newtheorem*{solution}{Solution}
+\newtheorem{definition}{Definition}
+\theoremstyle{definition}
+
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+
+\newcommand{\postscript}[2]
+ {\setlength{\epsfxsize}{#2\hsize}
+  \centerline{\epsfbox{#1}}}
+
+\renewcommand{\baselinestretch}{1.0}
+
+\setlength{\oddsidemargin}{-0.365in}
+\setlength{\evensidemargin}{-0.365in}
+\setlength{\topmargin}{-0.3in}
+\setlength{\headheight}{0in}
+\setlength{\headsep}{0in}
+\setlength{\textheight}{10.1in}
+\setlength{\textwidth}{7in}
+\makeatletter \renewenvironment{proof}[1][Proof] {\par\pushQED{\qed}\normalfont\topsep6\p@\@plus6\p@\relax\trivlist\item[\hskip\labelsep\bfseries#1\@addpunct{.}]\ignorespaces}{\popQED\endtrivlist\@endpefalse} \makeatother
+\makeatletter
+\renewenvironment{solution}[1][Solution] {\par\pushQED{\qed}\normalfont\topsep6\p@\@plus6\p@\relax\trivlist\item[\hskip\labelsep\bfseries#1\@addpunct{.}]\ignorespaces}{\popQED\endtrivlist\@endpefalse} \makeatother
+
+\begin{document}
+\noindent
+
+%========================================================================
+\noindent\framebox[\linewidth]{\shortstack[c]{
+\Large{\textbf{Lab04-Dynamic Programming}}\vspace{1mm}\\
+CS214-Algorithm and Complexity, Xiaofeng Gao, Spring 2018.}}
+\begin{center}
+\footnotesize{\color{red}$*$ If there is any problem, please contact TA Jiahao Fan. }
+
+\footnotesize{\color{blue}$*$ Name: Hongyi Guo\quad Student ID: 516030910306\quad Email: guohongyi@sjtu.edu.cn}
+\end{center}
+
+\begin{enumerate}
+\item
+\textbf{Coin Change}: Given currency denominations $D=\{d_1, d_2,\cdots, d_n\}$ ($0 < d_i < d_j$ for $1 \leq i < j \leq n$), devise a method based on dynamic programming to pay amount $A$ using fewest number of coins. Return -1 if $A$ cannot be made up by any combination of the coins.
+
+\begin{enumerate}
+\item
+Assume that $\text{OPT}(a)$ is the fewest number of coins for the problem of paying amount $a$ ($a \geq 0$). Please write a recurrence for $\text{OPT}(a)$.
+$$\text{OPT}(a)=\begin{cases}
+0,a=0\\
+\min\limits_{d_i\leq a,\text{OPT}(a-d_i)>-1}\{\text{OPT}(a-d_i)+1\},a>0\\
+-1,no-solution
+\end{cases}$$
+
+\item
+Base on the recurrence, write down your algorithm in the form of \emph{pseudo code}.
+\begin{solution}\quad
+	
+	\begin{minipage}{0.9\textwidth}
+		\begin{algorithm}[H]
+			\BlankLine
+			\caption{Coin Change}\label{Alg_CoinChange}
+			\SetKwFunction{opt}{OPT}
+			\SetKwBlock{OPT}{}{}
+			\SetKwInOut{Input}{input}
+			\SetKwInOut{Output}{output}
+			\Input{$D=\{d_1, d_2,\cdots, d_n\}$, $a$}
+			\Output{$\text{OPT}(a)$}
+			\BlankLine
+			\For{$i\leftarrow 1$ \textbf{to} $n$}{
+				$F[i]\leftarrow empty$\;
+			}
+			$F[0]\leftarrow 0$\;
+			\BlankLine
+			\opt$(a)$
+			\OPT{
+				\If{$F(a)\neq empty$}{
+					return $F(a)$\;
+				}
+				$ans\leftarrow\infty$\;
+				\For{$i\leftarrow 0$ \textbf{to} $n$}{
+					\If{$d_i\leq a$}{
+						$tmp\leftarrow \opt(a-d_i)$\;
+						\If{$tmp\neq -1$}{
+							$ans\leftarrow\min\{ans,1+tmp\}$\;
+						}
+					}\Else{
+						\textbf{break}\;
+					}
+				}
+				\If{$ans\neq\infty$}{
+					$F(a)\leftarrow ans$\;
+				}\Else{
+					$F(a)\leftarrow -1$\;
+				}
+				return $F(a)$\;
+			}	
+			\BlankLine
+			\textbf{output} $\opt(a)$;
+		\end{algorithm}
+	\end{minipage}
+\end{solution}
+
+\end{enumerate}
+
+\newpage
+\item
+\textbf{Crowdsourcing} is the process of obtaining needed services, ideas, or content by soliciting contributions from a large group of people, especially an online community. Suppose you want to form a team to complete a crowdsourcing task, and there are $n$ individuals to choose from. Each person $p_i$ can contribute $v_i$ ($v_i > 0$) to the team, but he/she can only work with up to $c_i$ other people. Now it is up to you to choose a certain group of people and maximize their total contributions ($\sum_i{v_i}$).
+
+\begin{enumerate}
+\item
+Given $\text{OPT}(i, b, c)=$ maximum contributions when choosing from $\{p_1, p_2, \cdots, p_i\}$ with $b$ persons already on board and at most $c$ seats left before any of the existing team members gets uncomfortable. Describe the optimal substructure as we did in class and write a recurrence for $\text{OPT}(i, b, c)$.
+
+\begin{solution}
+	To compute $\text{OPT}(i,b,c)$, we consider whether we choose the $i^{th}$ person or not. If we don't choose him, then we compute $\text{OPT}(i-1,b,c)$. If we want to choose the $i^{th}$ person, considering there are already $b$ persons on board, we must make sure no one will get uncomfortable, so $c_i\geq b$ and $c\geq 1$. After we choose the $i^{th}$ person, $\text{OPT}(i,b,c)=\text{OPT}(i-1,b+1,c')$, $c'=\min\{c_i-b,c-1\}$.
+	
+	So, we get the following recurrence. The answer to the problem is $\text{OPT}(n,0,n)$.
+	
+	$$\text{OPT}(i,b,c)=\begin{cases}
+	0,\quad i=0\quad or\quad c=0\\
+	\text{OPT}(i-1,b,c),\quad c_i<b\quad\\
+	\max\{\text{OPT}(i-1,b,c),v_i+\text{OPT}(i-1,b+1,\min\{c_i-b,c-1\})\},\quad otherwise\\
+	\end{cases}$$
+	
+\end{solution}
+
+\begin{solution} 
+	Here I have another solution, I define $\text{OPT}(i, b, c)=$ maximum contributions when we have considered all persons from $\{p_1, p_2, \cdots, p_i\}$ with $b$ persons from them already chosen and at most $c$ seats left before any of the existing team members gets uncomfortable. To compute $\text{OPT}(i,b,c)$, we consider whether we choose the $i^{th}$ person or not. If so, $\text{OPT}(i,b,c)=\text{OPT}(i-1,b-1,c+1)+v_i$, but he must be able to work with at least $b-1+c$ other persons since there are already $b-1$ persons in the last $i-1$ rounds and we are waiting for at most $c$ persons to join. If we pass the $i^{th}$ person, then $\text{OPT}(i,b,c)=\text{OPT}(i-1,b,c)$.
+	
+	Specially, in the original situation $i=0$ or the illegal situation $i<b$, OPT should be $0$.
+	
+	So, we get the following recurrence. The answer to the problem is $\max\limits_{0<b\leq n}\{\text{OPT}(n,b,0)\}$.
+	
+	$$\text{OPT}(i,b,c)=\begin{cases}
+	0,\quad i=0\quad or\quad i<b\\
+	\text{OPT}(i-1,b,c),\quad c_i<b+c-1\\
+	\max\{\text{OPT}(i-1,b,c),v_i+\text{OPT}(i-1,b-1,c+1)\},\quad otherwise
+	\end{cases}$$
+	
+\end{solution}
+
+\item
+Design an algorithm to form your team using dynamic programming, and write it down in the form of \emph{pseudo code}.
+
+\newpage
+\begin{solution}\quad
+	
+	\begin{minipage}{0.9\textwidth}
+		\begin{algorithm}[H]
+			\BlankLine
+			\caption{Crowd Sourcing}
+			\SetKwInOut{Input}{input}
+			\SetKwInOut{Output}{output}
+			\SetKwFunction{opt}{OPT}
+			\SetKwBlock{OPT}{}{}
+			\Input{$n$, $\{v_1,v_2,\dots,v_n\}$, $\{c_1,c_2,\dots,c_n\}$}
+			\Output{maximized $\sum\limits_{i}v_i$}
+			\BlankLine
+			\For{$i\leftarrow 0$ \textbf{to} $n$}{
+				\For{$j\leftarrow 0$ \textbf{to} $n$}{
+					\For{$k\leftarrow 0$ \textbf{to} $n$}{
+						$f[i,j,k]\leftarrow empty$\;
+					}
+				}
+			}
+			\BlankLine
+			\opt$(i,b,c)$
+			\OPT{
+				\If{$f[i,b,c]\neq empty$}{\textbf{return} $f[i,b,c]$\;}\
+				\If{$i=0$ or $c=0$}{$f[i,b,c]\leftarrow 0$}
+				\Else{
+					$c'\leftarrow\min\{c_i-b,c-1\}$\;
+					\If{$c'<0$}{$f[i,b,c]\leftarrow \opt(i-1,b,c)$\;}
+					\Else{
+						$f[i,b,c]\leftarrow\max\{\opt(i-1,b,c),v_i+\opt(i-1,b+1,c')\}$\;
+					}
+				}
+				\textbf{return} $f[i,b,c]$\;
+			}
+			\BlankLine
+			\textbf{output} \opt$(n,0,n)$\;
+		\end{algorithm}
+		
+	\end{minipage}
+\end{solution}
+
+\newpage
+\begin{solution} The algorithm of the second solution.
+	
+	\begin{minipage}{0.9\textwidth}
+		\begin{algorithm}[H]
+			\BlankLine
+			\caption{Crowd Sourcing}
+			\SetKwInOut{Input}{input}
+			\SetKwInOut{Output}{output}
+			\SetKwFunction{opt}{OPT}
+			\SetKwBlock{OPT}{}{}
+			\Input{$n$, $\{v_1,v_2,\dots,v_n\}$, $\{c_1,c_2,\dots,c_n\}$}
+			\Output{maximized $\sum\limits_{i}v_i$}
+			\BlankLine
+			\For{$i\leftarrow 0$ \textbf{to} $n$}{
+				\For{$j\leftarrow 0$ \textbf{to} $n$}{
+					\For{$k\leftarrow 0$ \textbf{to} $n$}{
+						$f[i,j,k]\leftarrow empty$\;
+					}
+				}
+			}
+			\BlankLine
+			\opt$(i,b,c)$
+			\OPT{
+				\If{$f[i,b,c]\neq empty$}{\textbf{return} $f[i,b,c]$\;}\
+				\If{$i=0$ or $i<b$}{$f[i,b,c]\leftarrow 0$}
+				\Else{
+					\If{$c_i<b+c-1$}{$f[i,b,c]\leftarrow \opt(i-1,b,c)$\;}
+					\Else{
+						$f[i,b,c]\leftarrow\max\{\opt(i-1,b,c),v_i+\opt(i-1,b-1,c+1)\}$\;
+					}
+				}
+				\textbf{return} $f[i,b,c]$\;
+			}
+			\BlankLine
+			$ans\leftarrow 0$\;
+			\For{$b\leftarrow 1$ \textbf{to} $n$}{
+				$ans\leftarrow\max\{ans,\opt(n,b,0)\}$\;
+			}
+			\textbf{output} $ans$\;
+		\end{algorithm}
+		
+	\end{minipage}
+\end{solution}
+
+\end{enumerate}
+
+\newpage
+\item
+\textbf{Take Them Down:} Given $n$ targets $T=\{t_1, t_2, \cdots, t_n\}$ on a straight line, your task is to shoot all of them and collect some coins. A nonnegative integer $b_i$ is painted on the target $t_i$. You can only shoot one target at a time, and by destroying $t_i$, you will earn $b_{\text{left}} \cdot b_i \cdot b_{\text{right}}$ coins. Here $t_{\text{left}}$ and $t_{\text{right}}$ are adjacent targets of $t_i$. After the shot, $t_{\text{left}}$ and $t_{\text{right}}$ becomes adjacent. There are two virtual targets $t_0$ and $t_{n+1}$ with $b_0 = b_{n+1} = 1$, but you cannot shoot them. Please find the maximum coins you can collect by shooting the targets wisely. {\color{blue}(Hint: Consider which target to destroy last.)}
+
+\textbf{Example:}
+
+Given 4 targets $T=\{t_1, t_2, t_3, t_4\}$ with $B=\{b_1, b_2, b_3, b_4\}=\{3,1,5,8\}$, return 167.
+
+The corresponding firing order: $t_2$, $t_3$, $t_1$, $t_4$. ($3\times1\times5+3\times5\times8+1\times3\times8+1\times8\times1=167$)
+
+\begin{enumerate}
+\item
+Design an algorithm based on dynamic programming and implement it in C/C++ {\color{blue}(The framework \emph{Code-Targets.cpp} is attached on the course webpage)}.
+
+\begin{solution}\quad
+	
+	\begin{verbatim}
+	#include <algorithm>
+	
+	int maxCoins(vector<int>& nums) {
+	    // Create two virtual targets
+	    vector<int> B(1, 1);
+	    for (int i = 0; i < nums.size(); i++)
+	        B.push_back(nums[i]);
+	    B.push_back(1);
+		
+	    int n = B.size(); // n = N + 2
+	    vector<vector<int> > f(n, vector<int>(n, 0)); //f: n x n, all-zero
+	    
+	    for (int t = 2; t < n; t++)
+	        for (int i = 0; i + t < n; i++) {
+	            int k = i + t;
+	            for (int j = i + 1; j < k; j++)
+	                f[i][k] = max(f[i][k], f[i][j] + f[j][k] + B[i]*B[j]*B[k]);
+	    }
+	    return f[0][num - 1];
+	}
+	\end{verbatim}
+	
+\end{solution}
+
+\item
+Analysis the time complexity of your implementation.
+
+\begin{solution}
+	The time complexity of constructing vector $B$ is $\Theta(n)$. Then we analyze the dynamic programming part. The outer for loop is executed $n-2=\Theta(n)$ times. The middle for loop is executed $n-t$ times. The inner for loop is executed $t-1$ times. So, the time complexity of the dynamic programming part is 
+	$$T(n)=\sum_{t=2}^{n-1}\sum_{i=0}^{n-t-1}\sum_{j=i+1}^{k-1}=\sum_{t=2}^{n-1}\sum_{i=0}^{n-t-1}k-i-1=\sum_{t=2}^{n-1}\frac{(n-t)(n-t-1)}{2}=\Theta(n^3)=\Theta(N^3)$$.
+	
+	The total time complexity of my implementation is $\Theta(N^3)$;
+	
+\end{solution}
+
+\end{enumerate}
+
+\end{enumerate}
+
+\vspace{20pt}
+
+\textbf{Remark:} You need to include your .pdf, .tex, and .cpp files in your uploaded .rar or .zip file.
+
+%========================================================================
+\end{document}

@@ -1,0 +1,514 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage{ctex}
+\usepackage{amsmath,amscd,amsbsy,amssymb,latexsym,url,bm,amsthm}
+\usepackage{epsfig,graphicx,subfigure}
+\usepackage{enumitem,balance}
+\usepackage{wrapfig}
+\usepackage{mathrsfs,euscript}
+\usepackage[usenames]{xcolor}
+\usepackage{hyperref}
+\usepackage[vlined,ruled,linesnumbered]{algorithm2e}
+\usepackage{float}
+\usepackage{multirow}
+\hypersetup{colorlinks=true,linkcolor=blue}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{exercise}{Exercise}
+\newtheorem*{solution}{Solution}
+\newtheorem{definition}{Definition}
+\theoremstyle{definition}
+
+
+
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+
+\newcommand{\postscript}[2]
+ {\setlength{\epsfxsize}{#2\hsize}
+  \centerline{\epsfbox{#1}}}
+
+\renewcommand{\baselinestretch}{1.0}
+
+\setlength{\oddsidemargin}{-0.365in}
+\setlength{\evensidemargin}{-0.365in}
+\setlength{\topmargin}{-0.3in}
+\setlength{\headheight}{0in}
+\setlength{\headsep}{0in}
+\setlength{\textheight}{10.1in}
+\setlength{\textwidth}{7in}
+\makeatletter \renewenvironment{proof}[1][Proof] {\par\pushQED{\qed}\normalfont\topsep6\p@\@plus6\p@\relax\trivlist\item[\hskip\labelsep\bfseries#1\@addpunct{.}]\ignorespaces}{\popQED\endtrivlist\@endpefalse} \makeatother
+\makeatletter
+\renewenvironment{solution}[1][Solution] {\par\pushQED{\qed}\normalfont\topsep6\p@\@plus6\p@\relax\trivlist\item[\hskip\labelsep\bfseries#1\@addpunct{.}]\ignorespaces}{\popQED\endtrivlist\@endpefalse} \makeatother
+
+\begin{document}
+\noindent
+
+%========================================================================
+\noindent\framebox[\linewidth]{\shortstack[c]{
+\Large{\textbf{Lab09-Turing Machine and Reduction}}\vspace{1mm}\\
+Algorithm and Complexity (CS214), Xiaofeng Gao, Spring 2018.}}
+\begin{center}
+\footnotesize{\color{blue}$*$ Name: Hongyi Guo\quad Student ID: 516030910306 \quad Email: guohongyi@sjtu.edu.cn}
+\end{center}
+
+\begin{enumerate}
+%\item Please enumerate \textbf{all paths} from node $a$ to node $d$ in the figure~\ref{graph}. Note that every edge only exists in one path at most one time.
+\item
+Design an one-tape TM $M$ that compute the function $f(x) = x\mod y $, says, the reminder of dividing $x$ by $y$, where $x$ and $y$ belong to the natural number set $\mathbb{N}$. The alphabet is $\{1, 0, \Box, \triangleright, \triangleleft\}$, where the input on the tape are $x$ ``1'''s, $\Box$ and $y$ ``1'''s. Below is the initial configurations for input $x$ and $y$. The result is the number of ``1'''s on the tape with pattern of $\triangleright 111\cdots 111 \triangleleft$. First describe your design and then write the specifications of $M$ in the form like $\langle q_S, \triangleright \rangle \rightarrow \langle q_1, \triangleright,  R\rangle$ and then explain the transition functions in detail. Moreover, you should draw the state transition diagram. (You can get bonus if you write briefly and clearly the whole process from initial to final configurations when $x = 7$ and $y = 3$.)
+
+\begin{center}
+\begin{tabular}{ll|c|c|c|c|c|c|c|c|c|c|c|c|c|c}
+	& \multicolumn{14}{c}{Configurations}\\[5pt]
+	\cline{2-16}
+	Init:& & $\triangleright$ &  1  & 1 & 1 & 1 & 1 & 1 & 1 & $\Box$ & 1 & 1 & 1 & $ \triangleleft$ & \\
+	\cline{2-16}
+	\multicolumn{2}{c}{} & \multicolumn{1}{c}{$\uparrow$} & \multicolumn{11}{c}{}\\[-4px]
+	\multicolumn{2}{c}{} & \multicolumn{1}{c}{$q_S$} & \multicolumn{11}{c}{}\\[4pt]
+	
+	\cline{2-16}
+	Step 1: & & $\triangleright$ &  ?  & ? & ? & ? & ? & ? & ? & ? & ? & ? & ? & $ \triangleleft$ & \\
+	
+	\cline{2-16}
+	\multicolumn{2}{c}{} & \multicolumn{1}{c}{$\uparrow$} & \multicolumn{11}{c}{}\\[-4px]
+	\multicolumn{2}{c}{} & \multicolumn{1}{c}{$?$} & \multicolumn{11}{c}{}\\[4pt]
+
+\end{tabular}
+\end{center}
+
+\begin{solution}
+	For each round, we minus both $x$ and $y$ by $1$. But when $y$ turns $0$, we change it into the original $y$. Finally, $x$ will become $0$. Assuming $y$ becomes $y^\prime$ currently, then $x\mod y=y-y^\prime$.
+	
+	\hspace{2mm}
+	\begin{minipage}{0.5\textwidth}
+		\begin{center}
+			\leftline{Start:}
+			
+			$\langle q_S,\triangleright\rangle\rightarrow\langle q_1,\triangleright,R\rangle$
+			
+			\leftline{Step 1: $x-1$}
+			
+			$\langle q_1,1\rangle\rightarrow\langle q_2,\triangleright,R\rangle$
+			
+			$\langle q_1,\Box\rangle\rightarrow\langle q_6,\triangleright,R\rangle$
+			
+			\leftline{Step 2: move to $y$}
+			
+			$\langle q_2,1\rangle\rightarrow\langle q_2,1,R\rangle$
+			
+			$\langle q_2,\Box\rangle\rightarrow\langle q_3,\Box,R\rangle$
+			
+			\leftline{Step 3: $y^\prime\leftarrow y^\prime-1$}
+			
+			$\langle q_3,0\rangle\rightarrow\langle q_3,0,R\rangle$
+			
+			$\langle q_3,\triangleleft\rangle\rightarrow\langle q_4,\triangleleft,L\rangle$
+			
+			$\langle q_3,1\rangle\rightarrow\langle q_5,0,L\rangle$
+		\end{center}
+	\end{minipage}
+	\begin{minipage}{0.5\textwidth}
+		\begin{center}
+			\leftline{Step 4: If $y^\prime<0$, $y^\prime\leftarrow y$}
+			
+			$\langle q_4,0\rangle\rightarrow\langle q_4,1,L\rangle$
+			
+			$\langle q_4,\Box\rangle\rightarrow\langle q_3,\Box,R\rangle$
+			
+			\leftline{Step 5: return to $x$}
+			
+			$\langle q_5,0\rangle\rightarrow\langle q_5,0,L\rangle$
+			
+			$\langle q_5,\Box\rangle\rightarrow\langle q_5,\Box,L\rangle$
+			
+			$\langle q_5,1\rangle\rightarrow\langle q_5,1,L\rangle$
+			
+			$\langle q_5,\triangleright\rangle\rightarrow\langle q_1,\triangleright,R\rangle$
+			
+			\leftline{Step 6: $result\leftarrow \#$ of $0$'s}
+			
+			$\langle q_6,0\rangle\rightarrow\langle q_6,1,R\rangle$
+			
+			$\langle q_6,1\rangle\rightarrow\langle q_t,\triangleleft,S\rangle$
+			
+			$q_t$: halt
+		\end{center}
+	\end{minipage}
+	\quad\par
+	Step 1 is used to set the first $1$ in $x$ to $\triangleright$ which means $x\leftarrow x-1$. The current index should be that of the first $1$ left in the $x$ side of the tape. If the symbol at current location is $\Box$, then there is no $1$'s left, so we change the $\Box$ into $\triangleright$ to form the pattern, move right, and goto step 6 to get the result.
+	
+	Then we use Step 2 to move the current index to $y$ via moving right until we meet the $\Box$, then we move to its right which is the first element in $y$ side of the tape.
+	
+	In step 3, we minus $y$ by 1. We move right until meeting the first $1$ then we change it into $0$. But if currently $y$ equals to $0$ (all elements in $y$ are $0$, which means we meet $\triangleleft$ before meeting a $1$), we jump to step $4$, where we change all $0$'s into $1$'s. Otherwise, we go to step 5.
+	
+	In step 5, we move index pointer to the left until it meets $\triangleright$ which is the beginning of $x$, then we move to its right and goto step 1.
+	
+	In step 6, we change all $0$'s into $1$'s in $y$ side of the tape, because for the number of $0$'s is the answer. Then change the first previous $1$ into $\triangleleft$ in order to form the pattern $\triangleright 111\cdots 111 \triangleleft$.
+	
+	The state transition diagram is as following.
+	
+	\begin{center}
+		\includegraphics[width=0.6\textwidth]{1.JPG}
+	\end{center}
+
+	The whole process from initial to final configurations when $x = 7$ and $y = 3$ is as following.
+	
+	$\underline{\triangleright}1111111\Box111\triangleleft(q_0)\leftarrow$initial configuration
+	
+	\begin{minipage}{0.3\textwidth}
+		\centering
+		/* stage 1 */
+		
+		$\triangleright\underline{1}111111\Box111\triangleleft(q_1)$
+		
+		$\triangleright\triangleright\underline{1}11111\Box111\triangleleft(q_2)$
+		
+		$\triangleright\triangleright1\underline{1}1111\Box111\triangleleft(q_2)$
+		
+		$\triangleright\triangleright11\underline{1}111\Box111\triangleleft(q_2)$
+		
+		$\triangleright\triangleright111\underline{1}11\Box111\triangleleft(q_2)$
+		
+		$\triangleright\triangleright1111\underline{1}1\Box111\triangleleft(q_2)$
+		
+		$\triangleright\triangleright11111\underline{1}\Box111\triangleleft(q_2)$
+		
+		$\triangleright\triangleright111111\underline{\Box}111\triangleleft(q_2)$
+		
+		$\triangleright\triangleright111111\Box\underline{1}11\triangleleft(q_3)$
+		
+		$\triangleright\triangleright111111\underline{\Box}011\triangleleft(q_5)$
+		
+		$\triangleright\triangleright11111\underline{1}\Box011\triangleleft(q_5)$
+		
+		$\triangleright\triangleright1111\underline{1}1\Box011\triangleleft(q_5)$
+		
+		$\triangleright\triangleright111\underline{1}11\Box011\triangleleft(q_5)$
+		
+		$\triangleright\triangleright11\underline{1}111\Box011\triangleleft(q_5)$
+		
+		$\triangleright\triangleright1\underline{1}1111\Box011\triangleleft(q_5)$
+		
+		$\triangleright\triangleright\underline{1}11111\Box011\triangleleft(q_5)$
+		
+		$\triangleright\underline{\triangleright}111111\Box011\triangleleft(q_5)$
+		
+		\quad
+		
+		/* stage 2 */
+		
+		$\triangleright\triangleright\underline{1}11111\Box011\triangleleft(q_1)$
+		
+		$\triangleright\triangleright\triangleright\underline{1}1111\Box011\triangleleft(q_2)$
+		
+		$\triangleright\triangleright\triangleright1\underline{1}111\Box011\triangleleft(q_2)$
+		
+		$\triangleright\triangleright\triangleright11\underline{1}11\Box011\triangleleft(q_2)$
+		
+		$\triangleright\triangleright\triangleright111\underline{1}1\Box011\triangleleft(q_2)$
+		
+		$\triangleright\triangleright\triangleright1111\underline{1}\Box011\triangleleft(q_2)$
+		
+		$\triangleright\triangleright\triangleright11111\underline{\Box}011\triangleleft(q_2)$
+		
+		$\triangleright\triangleright\triangleright11111\Box\underline{0}11\triangleleft(q_3)$
+		
+		$\triangleright\triangleright\triangleright11111\Box0\underline{1}1\triangleleft(q_3)$
+		
+		$\triangleright\triangleright\triangleright11111\Box\underline{0}01\triangleleft(q_5)$
+		
+	\end{minipage}
+	\begin{minipage}{0.3\textwidth}
+		\centering
+		
+		$\triangleright\triangleright\triangleright11111\underline{\Box}001\triangleleft(q_5)$
+		
+		$\triangleright\triangleright\triangleright1111\underline{1}\Box001\triangleleft(q_5)$
+		
+		$\triangleright\triangleright\triangleright111\underline{1}1\Box001\triangleleft(q_5)$
+		
+		$\triangleright\triangleright\triangleright11\underline{1}11\Box001\triangleleft(q_5)$
+		
+		$\triangleright\triangleright\triangleright1\underline{1}111\Box001\triangleleft(q_5)$
+		
+		$\triangleright\triangleright\triangleright\underline{1}1111\Box001\triangleleft(q_5)$
+		
+		$\triangleright\triangleright\underline{\triangleright}11111\Box001\triangleleft(q_5)$
+		
+		\quad
+		
+		/* stage 3 */
+		
+		$\triangleright\triangleright\triangleright\underline{1}1111\Box001\triangleleft(q_1)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\underline{1}111\Box001\triangleleft(q_2)$
+		
+		$\triangleright\triangleright\triangleright\triangleright1\underline{1}11\Box001\triangleleft(q_2)$
+		
+		$\triangleright\triangleright\triangleright\triangleright11\underline{1}1\Box001\triangleleft(q_2)$
+		
+		$\triangleright\triangleright\triangleright\triangleright111\underline{1}\Box001\triangleleft(q_2)$
+		
+		$\triangleright\triangleright\triangleright\triangleright1111\underline{\Box}001\triangleleft(q_2)$
+		
+		$\triangleright\triangleright\triangleright\triangleright1111\Box\underline{0}01\triangleleft(q_3)$
+		
+		$\triangleright\triangleright\triangleright\triangleright1111\Box0\underline{0}1\triangleleft(q_3)$
+		
+		$\triangleright\triangleright\triangleright\triangleright1111\Box00\underline{1}\triangleleft(q_3)$
+		
+		$\triangleright\triangleright\triangleright\triangleright1111\Box0\underline{0}0\triangleleft(q_5)$
+		
+		$\triangleright\triangleright\triangleright\triangleright1111\Box\underline{0}00\triangleleft(q_5)$
+		
+		$\triangleright\triangleright\triangleright\triangleright1111\underline{\Box}000\triangleleft(q_5)$
+		
+		$\triangleright\triangleright\triangleright\triangleright111\underline{1}\Box000\triangleleft(q_5)$
+		
+		$\triangleright\triangleright\triangleright\triangleright11\underline{1}1\Box000\triangleleft(q_5)$
+		
+		$\triangleright\triangleright\triangleright\triangleright1\underline{1}11\Box000\triangleleft(q_5)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\underline{1}111\Box000\triangleleft(q_5)$
+		
+		$\triangleright\triangleright\triangleright\underline{\triangleright}1111\Box000\triangleleft(q_5)$
+		
+		\quad
+		
+		/* stage 4 */
+		
+		$\triangleright\triangleright\triangleright\triangleright\underline{1}111\Box000\triangleleft(q_1)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright\underline{1}11\Box000\triangleleft(q_2)$
+		
+	\end{minipage}
+	\begin{minipage}{0.3\textwidth}
+		\centering
+		$\triangleright\triangleright\triangleright\triangleright\triangleright1\underline{1}1\Box000\triangleleft(q_2)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright11\underline{1}\Box000\triangleleft(q_2)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright111\underline{\Box}000\triangleleft(q_2)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright111\Box\underline{0}00\triangleleft(q_3)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright111\Box0\underline{0}0\triangleleft(q_3)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright111\Box00\underline{0}\triangleleft(q_3)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright111\Box000\underline{\triangleleft}(q_3)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright111\Box00\underline{0}\triangleleft(q_4)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright111\Box0\underline{0}1\triangleleft(q_4)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright111\Box\underline{0}11\triangleleft(q_4)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright111\underline{\Box}111\triangleleft(q_4)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright111\Box\underline{1}11\triangleleft(q_3)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright111\underline{\Box}011\triangleleft(q_5)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright11\underline{1}\Box011\triangleleft(q_5)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright1\underline{1}1\Box011\triangleleft(q_5)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright\underline{1}11\Box011\triangleleft(q_5)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\underline{\triangleright}111\Box011\triangleleft(q_5)$
+		
+		\quad
+		
+		/* stage 5 */
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright\underline{1}11\Box011\triangleleft(q_1)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\underline{1}1\Box011\triangleleft(q_2)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright1\underline{1}\Box011\triangleleft(q_2)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright11\underline{\Box}011\triangleleft(q_2)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright11\Box\underline{0}11\triangleleft(q_3)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright11\Box0\underline{1}1\triangleleft(q_3)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright11\Box\underline{0}01\triangleleft(q_5)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright11\underline{\Box}001\triangleleft(q_5)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright1\underline{1}\Box001\triangleleft(q_5)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\underline{1}1\Box001\triangleleft(q_5)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright\underline{\triangleright}11\Box001\triangleleft(q_5)$
+		
+	\end{minipage}
+	\newpage
+	\begin{minipage}{0.3\textwidth}
+		\centering
+		/* stage 6 */
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\underline{1}1\Box001\triangleleft(q_1)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\underline{1}\Box001\triangleleft(q_2)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright1\underline{\Box}001\triangleleft(q_2)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright1\Box\underline{0}01\triangleleft(q_3)$
+	
+		$\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright1\Box0\underline{0}1\triangleleft(q_3)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright1\Box00\underline{1}\triangleleft(q_3)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright1\Box0\underline{0}0\triangleleft(q_5)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright1\Box\underline{0}00\triangleleft(q_5)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright1\underline{\Box}000\triangleleft(q_5)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\underline{1}\Box000\triangleleft(q_5)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\underline{\triangleright}1\Box000\triangleleft(q_5)$
+		
+	\end{minipage}
+	\begin{minipage}{0.3\textwidth}
+		\centering
+		/* stage 7 */
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\underline{1}\Box000\triangleleft(q_1)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\underline{\Box}000\triangleleft(q_2)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\Box\underline{0}00\triangleleft(q_3)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\Box0\underline{0}0\triangleleft(q_3)$
+
+		$\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\Box00\underline{0}\triangleleft(q_3)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\Box000\underline{\triangleleft}(q_3)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\Box00\underline{0}\triangleleft(q_4)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\Box0\underline{0}1\triangleleft(q_4)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\Box\underline{0}11\triangleleft(q_4)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\underline{\Box}111\triangleleft(q_4)$
+
+		$\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\Box\underline{1}11\triangleleft(q_3)$
+
+	\end{minipage}
+	\begin{minipage}{0.3\textwidth}
+		\centering
+		$\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\underline{\Box}011\triangleleft(q_5)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\underline{\triangleright}\Box011\triangleleft(q_5)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\underline{\Box}011\triangleleft(q_1)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\underline{0}11\triangleleft(q_6)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright1\underline{1}1\triangleleft(q_6)$
+		
+		$\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright\triangleright1\underline{\triangleleft}1\triangleleft(q_t)$
+		
+		$\leftarrow$ end configuration
+	\end{minipage}
+
+\end{solution}
+
+%\item Prove the multiplication of complex number: $f(a+b{\rm i}, c+d{\rm i}) = (a+b{\rm i})(c+d{\rm i})$ is computable.
+%{\color{blue}{Hint: You should construct the injection function to transform the domain.}}
+
+ \item $\mathbb{A}$ and $\mathbb{B}$ are two domains other than $\mathbb{N}$. Assume there exist intuitively computable functions $\alpha: \mathbb{A} \rightarrow \mathbb{N}$ and $\alpha^{-1}: \mathbb{N} \rightarrow \mathbb{A}$ as encoding and decoding functions from $\mathbb{A}$ to $\mathbb{N}$ respectively (we have $\beta:\mathbb{B}\rightarrow \mathbb{N}$ and $\beta^{-1}: \mathbb{N} \rightarrow \mathbb{B}$ similarly). Then answer the following questions.
+
+\begin{enumerate}
+\begin{minipage}[t]{0.6\textwidth}
+	\item To prove that $f:\mathbb{A}\rightarrow \mathbb{B}$ is computable, we need to construct an $f^*: \mathbb{N} \rightarrow \mathbb{N}$ and analyze its computability. How to calculate $f^*$?
+	
+	\begin{solution}
+		$f^\star = \beta \circ f \circ \alpha^{-1}$
+		
+	\end{solution}
+
+	\item Reversely, for a computable function $g: \mathbb{N} \rightarrow \mathbb{N}$, we can obtain an intuitively computable function $g': \mathbb{A} \rightarrow \mathbb{B}$ from $g$. What is $g'$ in notation of $g$, $\alpha$ and $\beta$?
+	
+	\begin{solution}
+		$g^\prime = \beta^{-1} \circ g \circ \alpha$
+		
+	\end{solution}
+
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.4\textwidth}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.8\textwidth]{Fig-ZigZag.pdf}
+		\caption{Zig Zag Mapping}
+		\label{fig:zigzag}
+	\end{figure}
+\end{minipage}
+
+	\item Find a new coding function $\gamma$ (with the help of $\alpha$ and $\beta$) to deal with computability on domain $\mathbb{A} \times \mathbb{B}$. {\color{blue}(Hint: Consider the ``zig-zag'' mapping in Figure~\ref{fig:zigzag}.)}
+	
+	\begin{solution}
+		From Zig-Zag mapping, we learn that there exists a function $\omega:\mathbb{N}\times\mathbb{N}\rightarrow\mathbb{N}$
+		
+		Therefore, $\gamma=\omega\circ(\alpha\times\beta)$ is a function computable on $\mathbb{A}\times\mathbb{B}$
+	\end{solution}
+\end{enumerate}
+
+\item  What is the ``certificate'' and ``certifier'' for the following problems?
+\begin{enumerate}
+	
+	\item \emph{CLIQUE}: Given a graph $G=(V,E)$ and a positive integer $k$, is there a clique (subsets of vertices which are all adjacent to each other) whose size is no less than $k$?
+	
+	\begin{solution}\quad
+		
+		\textbf{Certificate.} A subsets $S$ of $V$ whose size is no less than $k$.
+		
+		\textbf{Certifier.} Check that vertices in $S$ are all adjacent to each other in $G$.
+		
+	\end{solution}
+
+	\item \emph{SET PACKING}: Given a finite set $U$, a positive integer $k$ and several subsets $U_1, U_2, \ldots, U_m$ of $U$, is there $k$ or more subsets which are disjoint with each other?
+	
+	\begin{solution}\quad
+		
+		\textbf{Certificate.} A collection $C$ of $U_1, U_2, \ldots, U_m$ whose size is no less than $k$.
+		
+		\textbf{Certifier.} Check that all sets in $C$ are disjoint with each other.
+		
+	\end{solution}
+	
+	\item \emph{STEINER TREE IN GRAPHS}: Given a graph $G=(V,E)$, a weight $w(e)\in Z_0^{+}$ for each $e\in E$, a subset $R \subset V$, and a positive integer bound $B$, is there a subtree of $G$ that includes all the vertices of $R$ and such that the sum of the weights of the edges in the subtree is no more than $B$.
+	
+	\begin{solution}\quad
+		
+		\textbf{Certificate.} A subtree $T$ of $G$ whose weight (the sum of the weights of the edges in it) is no more than $B$.
+		
+		\textbf{Certifier.} Check if $T$ includes all the vertices of $R$.
+		
+	\end{solution}
+	
+\end{enumerate}
+
+\item Prove VERTEX COVER $\equiv_p$ CLIQUE
+
+\begin{solution}
+	Suppose $C$ is a CLIQUE in $G$ with $|C| = k$, and the complement graph of $G$ is $G_C$. In $G_C$, there is no edge between any two vertices in $C$ for $C$ is a CLIQUE, as to say, $C$ is INDEPENDENT in $G_C$. Therefore, CLIQUE $\leq$ INDEPENDENT.
+	
+	Suppose $I$ is an INDEPENDENT set in $G$ with $|I| = k$, so there is no edge between any two vertices in $I$. Then in $G_C$, there is an edge between any two vertices in $I$. So, $I$ is a clique in $G_C$. Therefore, INDEPENDENT $\leq$ CLIQUE.
+	
+	From all above, CLIQUE $\equiv_p$ INDEPENDENT. And from the lecture, we know INDEPENDENT $\equiv_p$ VERTEX COVER. As a result, VERTEX COVER $\equiv_p$ CLIQUE.
+	
+\end{solution}
+
+\end{enumerate}
+
+
+%========================================================================
+\end{document}

@@ -1,0 +1,274 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage{ctex}
+\usepackage{amsmath,amscd,amsbsy,amssymb,latexsym,url,bm,amsthm}
+\usepackage{epsfig,graphicx,subfigure}
+\usepackage{enumitem,balance}
+\usepackage{wrapfig}
+\usepackage{mathrsfs,euscript}
+\usepackage[usenames]{xcolor}
+\usepackage{hyperref}
+\usepackage[vlined,ruled,linesnumbered]{algorithm2e}
+\hypersetup{colorlinks=true,linkcolor=black}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{exercise}{Exercise}
+\newtheorem*{solution}{Solution}
+\newtheorem{definition}{Definition}
+\theoremstyle{definition}
+
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+
+\newcommand{\postscript}[2]
+ {\setlength{\epsfxsize}{#2\hsize}
+  \centerline{\epsfbox{#1}}}
+
+\renewcommand{\baselinestretch}{1.0}
+
+\setlength{\oddsidemargin}{-0.365in}
+\setlength{\evensidemargin}{-0.365in}
+\setlength{\topmargin}{-0.3in}
+\setlength{\headheight}{0in}
+\setlength{\headsep}{0in}
+\setlength{\textheight}{10.1in}
+\setlength{\textwidth}{7in}
+\makeatletter \renewenvironment{proof}[1][Proof] {\par\pushQED{\qed}\normalfont\topsep6\p@\@plus6\p@\relax\trivlist\item[\hskip\labelsep\bfseries#1\@addpunct{.}]\ignorespaces}{\popQED\endtrivlist\@endpefalse} \makeatother
+\makeatletter
+\renewenvironment{solution}[1][Solution] {\par\pushQED{\qed}\normalfont\topsep6\p@\@plus6\p@\relax\trivlist\item[\hskip\labelsep\bfseries#1\@addpunct{.}]\ignorespaces}{\popQED\endtrivlist\@endpefalse} \makeatother
+
+\begin{document}
+\noindent
+
+%========================================================================
+\noindent\framebox[\linewidth]{\shortstack[c]{
+\Large{\textbf{Lab08-Shortest Path}}\vspace{1mm}\\
+CS214-Algorithm and Complexity, Xiaofeng Gao, Spring 2018.}}
+\begin{center}
+\footnotesize{\color{blue}$*$ Name: Hongyi Guo\quad Student ID: 516030910306 \quad Email: guohongyi@sjtu.edu.cn}
+\end{center}
+
+\begin{enumerate}
+\item
+Let $D$ be the shortest path matrix of weighted graph $G$. It means that $D[u, v]$ is the length of the shortest path from $u$ to $v$ for any pair of vertices $u$ and $v$. Graph $G$ and matrix $D$ are given. Now, assume the weight of a particular edge $e$ is decreased from $w_e$ to $w_e'$. Design an algorithm to update matrix $D$ with respect to this change. The time complexity of your algorithm should be $O(n^2)$. Describe the details and write down your algorithm in the form of pseudo-code.
+
+\begin{solution} We can use $e^\prime=(x,y)$ to loose the shortest path between any two vertices $u$ and $v$ in $G$. That is, we compare the path $u\rightarrow x\rightarrow y\rightarrow v$ with original shortest path and try to update it. For each pair of vertices $u$, $v$, we only compare once in undirected graphs or twice in directed graphs. So the time complexity is $O(n^2)$.
+
+\begin{enumerate}
+	\item For directed graph $G$.
+	
+	\begin{minipage}{0.9\textwidth}
+		\begin{algorithm}[H]
+			\BlankLine
+			\SetKwInOut{Input}{input}
+			\SetKwInOut{Output}{output}
+			\caption{For directed graphs}
+			\Input{An adjacent matrix of a directed graph $G$, original shortest path matrix $D$, vertex set $V$, edge $e=(x,y)$, $w_e^\prime$.}
+			\Output{$D$, the updated shortest path matrix.}
+			\BlankLine
+			
+			\For{$u$ \textbf{in} $V$}{
+				\For{$v$ \textbf{in} $V$}{
+					\If{$u\neq v$}{
+						$D[i,j]=\min\{D[i,j], D[i,x]+w_e^{\prime}+D[y,j]\}$\;
+					}
+				}
+			}
+		\end{algorithm}
+	\end{minipage}
+
+	\item For undirected graph $G$.
+	
+	\begin{minipage}{0.9\textwidth}
+		\begin{algorithm}[H]
+			\BlankLine
+			\SetKwInOut{Input}{input}
+			\SetKwInOut{Output}{output}
+			\caption{For undirected graphs}
+			\Input{An adjacent matrix of an undirected graph $G$, original shortest path matrix $D$, vertex set $V$, edge $e=(x,y)$, $w_e^\prime$.}
+			\Output{$D$, the updated shortest path matrix.}
+			\BlankLine
+			
+			\For{$u$ \textbf{in} $V$}{
+				\For{$v$ \textbf{in} $V$}{
+					\If{$u\neq v$}{
+						$D[i,j]=\min\{D[i,j], D[i,x]+w_e^{\prime}+D[y,j]\}$\;
+						$D[i,j]=\min\{D[i,j], D[i,y]+w_e^{\prime}+D[x,j]\}$\;
+					}
+				}
+			}
+		\end{algorithm}
+	\end{minipage}
+\end{enumerate}
+\end{solution}
+
+\item
+Suppose $G=(V, E)$ is a \emph{directed acyclic graph} (DAG) with positive weights $w(u, v)$ on each edge. Let $s$ be a vertex of $G$ with no incoming edges and assume that every other node is reachable from $s$ through some path.
+
+\begin{enumerate}
+\item
+Give an $O(|V|+|E|)$-time algorithm to compute the shortest paths from $s$ to all the other vertices in $G$. Note that this is faster than Dijkstra's algorithm in general.
+\begin{solution}
+	We use dynamic programming to solve this problem. We denote the distance of shortest path from $s$ to other vertex $u$ by $d(u)$. The state transition equation is as following.
+	$$
+	d(u)=\begin{cases}
+	     \min\limits_{(v,u)\in E}\{d(v)+w(v,u)\},&u\neq s\\
+	     0,                                      &u=s
+	     \end{cases}
+	$$
+	We can $depth-first-search$ the graph from vertex $s$ and compute the shortest paths along the way. The time complexity of this is $O(|V|+|E|)$.
+	
+	\begin{minipage}{0.9\textwidth}
+		\begin{algorithm}[H]
+			\BlankLine
+			\SetKwInOut{Input}{input}
+			\SetKwInOut{Output}{output}
+			\SetKwFunction{dfs}{DFS}
+			\SetKwBlock{DFS}{}{}
+			\caption{For undirected graphs}
+			\Input{$G=(E,V)$, $n=|V|$, $w(u,v)$ as the weight of $(u,v)$}
+			\Output{$d$}
+			\BlankLine
+			
+			$d(1..n)\leftarrow\infty$\;
+			\BlankLine
+			
+			\dfs($u$)
+			\DFS{
+				\ForEach{$(u,v)\in E$}{
+					$d(v)\leftarrow\min\{d(v),d(u)+w(u,v)\}$\;
+					\dfs($v$)\;
+				}
+			}
+			\BlankLine
+			
+			$d(s)\leftarrow 0$\;
+			\dfs($s$)\;
+		\end{algorithm}
+	\end{minipage}
+\end{solution}
+
+\item
+Give an efficient algorithm to compute the longest paths from $s$ to all the other vertices.
+\begin{solution}
+	For this problem, we can simply change weights $w(u,v)$ on each edge to its opposite number and compute the shortest path $d[u]$ in this new graph. It's easy to know this current shortest path is the longest path in the original graph. In the end we just change $d[u]$ to its opposite number and that's the longest path from $s$ to $u$. The time complexity of this algorithm is $O(|V|+|E|)$ which is linear.\par
+\end{solution}
+\end{enumerate}
+
+\item
+Consider the following network (the numbers are edge capacities).
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.4\textwidth]{Fig-FlowNetwork.pdf}
+\end{figure}
+
+\begin{enumerate}
+\item
+Find the maximum flow $f$ and a minimum cut.
+\begin{solution}
+	The maximum flow $f=11$. A minimum cut is $(S,A,B), (T,C,D)$.\par
+\end{solution}
+\item
+Draw the residual graph $G_f$ (along with its edge capacities). In this residual network, mark the vertices reachable from $S$ and the vertices from which $T$ is reachable.
+\begin{center}
+	\includegraphics[width=0.7\textwidth]{b.png}
+\end{center}
+
+\item
+An edge of a flow network is called a \emph{bottleneck edge} if increasing its capacity results in an increase in the maximum flow. List all bottleneck edges in the above network and give an efficient algorithm to identify all bottleneck edges in a flow network. You need to give the notations and write down your algorithm in the form of pseudo-code.
+
+\begin{solution}
+	All bottleneck edges in the above network are $(A,C),(B,C)$.
+	
+	Algorithm: all edges that connect vertices reachable from $S$ and vertices from which $T$ is reachable are bottleneck edges, because if we add an edge $(u,v)$ that satisfies that condition in the residual graph, then there exists an augment path: $s\rightarrow u\rightarrow v\rightarrow t$. Otherwise, no augment could be found.
+	
+	We denote $G=(E,V)$ as the original graph, $G_R=(E_R,V)$ as the residual graph, and $G_R^T=(E_R^T,V)$ as the reversed residual graph which changed the edges in $G_R$ to the opposite direction.
+	
+	\begin{minipage}{0.9\textwidth}
+		\begin{algorithm}[H]
+			\BlankLine
+			\SetKwInOut{Input}{input}
+			\SetKwInOut{Output}{output}
+			\caption{find-bottleneck-edges}
+			\Input{$G$, $G_R$}
+			\Output{the set of all bottleneck edges $bottlenecks$}
+			\BlankLine
+			
+			$bottlenecks\leftarrow\emptyset$\;
+			\BlankLine
+			// $A$: points reachable from $S$\\
+			$A\leftarrow\emptyset$\;
+			\BlankLine
+			// $B$: points from which $T$ is reachable\\
+			$B\leftarrow\emptyset$\;
+			\BlankLine			
+			$depth-frist-search$ $G_R$ from $S$ and put the visited points into $A$\;
+			$depth-frist-search$ $G_R^T$ from $T$ and put the visited points into $B$\;
+			\BlankLine
+			
+			\ForEach{$u\in A$}{
+				\ForEach{$(u,v)\in E$}{
+					\If{$v\in B$}{
+						$bottlenecks\leftarrow bottlenecks\cup \{(u,v)\}$\;
+					}
+				}
+			}
+			\textbf{output} bottlenecks
+		\end{algorithm}
+	\end{minipage}
+\end{solution}
+
+\item
+Give a very simple example (containing at most four nodes) of a network which has no bottleneck edges.
+\begin{solution}\quad\par
+	\begin{center}
+		\includegraphics[width=0.5\textwidth]{d.png}
+	\end{center}
+\end{solution}
+
+\item
+An edge of a flow network is called $critical$ if decreasing the capacity of this edge results in a decrease in the maximum flow. Give an efficient algorithm that finds all critical edges in a flow network. Again, you need to give the notations and write down your algorithm in the form of pseudo-code.
+
+\begin{solution}
+	We denote $G=(E,V)$ as the original graph, $G_R=(E_R,V)$ as the residual graph, and $G_R^T=(E_R^T,V)$ as the reversed residual graph which changed the edges in $G_R$ to the opposite direction. Also, we denote $A$ as the set of vertices reachable from $S$, and $B$ as the set of vertices from which $T$ is reachable.
+	
+	Algorithm: critical edges are the edges $(u,v)$ that $u\notin B, v\notin A, (u,v)\notin G_R$.
+	
+	\begin{minipage}{0.9\textwidth}
+		\begin{algorithm}[H]
+			\BlankLine
+			\SetKwInOut{Input}{input}
+			\SetKwInOut{Output}{output}
+			\caption{find-bottleneck-edges}
+			\Input{$G$, $G_R$}
+			\Output{the set of all bottleneck edges $bottlenecks$}
+			\BlankLine
+			
+			$bottlenecks\leftarrow\emptyset$\;
+			\BlankLine
+			// $A$: points reachable from $S$\\
+			$A\leftarrow\emptyset$\;
+			\BlankLine
+			// $B$: points from which $T$ is reachable\\
+			$B\leftarrow\emptyset$\;
+			\BlankLine
+			$depth-frist-search$ $G_R$ from $S$ and put the visited points into $A$\;
+			$depth-frist-search$ $G_R^T$ from $T$ and put the visited points into $B$\;
+			\BlankLine
+			
+			\ForEach{$u\notin B$}{
+				\ForEach{$(u,v)\in E$}{
+					\If{$v\notin A$ and $(u,v)\notin E_R$}{
+						$bottlenecks\leftarrow bottlenecks\cup \{(u,v)\}$\;
+					}
+				}
+			}
+			\textbf{output} bottlenecks
+		\end{algorithm}
+	\end{minipage}
+\end{solution}
+\end{enumerate}
+\end{enumerate}
+\end{document}
